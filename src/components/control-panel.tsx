@@ -1,6 +1,12 @@
+import clsx from "clsx";
 import { RangeSlider } from "./forms/range-slider";
 
-export function ControlPanel() {
+interface Props {
+  isMarking: boolean;
+  onStartMarking(): void;
+}
+
+export function ControlPanel({ isMarking, onStartMarking }: Props) {
   return (
     <div className="flex h-screen w-100 flex-col gap-8 bg-stone-800 p-4 text-white">
       <h2 className="text-xl">Search for battles</h2>
@@ -18,8 +24,15 @@ export function ControlPanel() {
 
         <p>- or -</p>
 
-        <button className="w-full cursor-pointer rounded-lg bg-stone-700 py-2 hover:bg-stone-700/50">
-          Click to drop pin
+        <button
+          className={clsx(
+            "w-full cursor-pointer rounded-lg bg-stone-700 py-2 hover:bg-stone-700/50",
+            isMarking && "bg-stone-700/50",
+          )}
+          onClick={() => onStartMarking()}
+        >
+          {isMarking && "Marking..."}
+          {!isMarking && "Click to drop pin"}
         </button>
       </section>
 

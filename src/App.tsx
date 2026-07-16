@@ -3,34 +3,42 @@ import {
   Map,
   NavigationControl,
   ScaleControl,
+  type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import { MapPin } from "./components/map-pin";
-import type { BattleItem } from "./types/common";
+import type { BattleItem, Point } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
+import { MapRadius } from "./components/map-radius";
 
 function App() {
+  // Map state
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
+  const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
+
+  // Actions
   const [isZooming, setIsZooming] = useState(false);
-  const [source, _setSource] = useState("osm" as const);
+  const [isMarking, setIsMarking] = useState(false);
+
+  // Battles
   const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
-
   const [getBattles] = useFetchBattles();
-
   const battles = useMemo(
     () => getBattles({ lat: 57.149651, lng: -2.099075 }, 100),
     [getBattles],
   );
 
+  // Event handlers
   function handleEscapeKey(e: KeyboardEvent) {
     if (e.key === "Escape") {
       e.preventDefault();
       setSelectedBattle(null);
+      setIsMarking(false);
     }
   }
 
@@ -39,8 +47,15 @@ function App() {
     return () => window.removeEventListener("keydown", handleEscapeKey);
   });
 
+  function handleMapClick(event: MapLayerMouseEvent) {
+    if (!isMarking) return;
+
+    setRadiusPoint(event.lngLat);
+    setIsMarking(false);
+  }
+
   return (
-    <div className="flex h-full">
+    <div className={"flex h-full"}>
       <Map
         initialViewState={{
           longitude: -2.099075,
@@ -50,8 +65,10 @@ function App() {
         style={{ width: `${width}px`, height: `${height}px` }}
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
+        onClick={(ev) => handleMapClick(ev)}
+        cursor={isMarking ? "crosshair" : ""}
       >
-        <MapSource source={source} />
+        <MapSource source="osm" />
 
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
@@ -65,6 +82,8 @@ function App() {
           />
         ))}
 
+        {radiusPoint && <MapRadius point={radiusPoint} />}
+
         {selectedBattle && (
           <MapPopup
             disabled={isZooming}
@@ -74,7 +93,12 @@ function App() {
         )}
       </Map>
 
-      <ControlPanel />
+      <ControlPanel
+        isMarking={isMarking}
+        onStartMarking={() => {
+          setIsMarking(true);
+        }}
+      />
     </div>
   );
 }
