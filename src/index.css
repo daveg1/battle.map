@@ -1,1 +1,7 @@
 @import "tailwindcss";
+
+@layer components {
+  .is-zooming .maplibregl-popup-content {
+    pointer-events: none !important;
+  }
+}

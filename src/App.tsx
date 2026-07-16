@@ -5,7 +5,7 @@ import {
   ScaleControl,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import { MapPin } from "./components/map-pin";
@@ -15,6 +15,7 @@ import { MapPopup } from "./components/map-popup";
 function App() {
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
+  const [isZooming, setIsZooming] = useState(false);
   const [source, _setSource] = useState("osm" as const);
   const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
 
@@ -25,6 +26,18 @@ function App() {
     [getBattles],
   );
 
+  function handleEscapeKey(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setSelectedBattle(null);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleEscapeKey);
+    return () => window.removeEventListener("keydown", handleEscapeKey);
+  });
+
   return (
     <>
       <Map
@@ -34,6 +47,8 @@ function App() {
           zoom,
         }}
         style={{ width: `${width}px`, height: `${height}px` }}
+        onZoomStart={() => setIsZooming(true)}
+        onZoomEnd={() => setIsZooming(false)}
       >
         <MapSource source={source} />
 
@@ -51,6 +66,7 @@ function App() {
 
         {selectedBattle && (
           <MapPopup
+            disabled={isZooming}
             selectedBattle={selectedBattle}
             onClose={() => setSelectedBattle(null)}
           />
