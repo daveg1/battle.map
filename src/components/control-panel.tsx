@@ -5,16 +5,10 @@ import { useState } from "react";
 interface Props {
   isMarking: boolean;
   onStartMarking(): void;
-  radiusSize: number;
   onSearch(radius: number): void;
 }
 
-export function ControlPanel({
-  isMarking,
-  onStartMarking,
-  radiusSize,
-  onSearch,
-}: Props) {
+export function ControlPanel({ isMarking, onStartMarking, onSearch }: Props) {
   const [radius, setRadius] = useState(100);
 
   function handleSearch() {

@@ -102,7 +102,6 @@ function App() {
         onStartMarking={() => {
           setIsMarking(true);
         }}
-        radiusSize={radiusSize}
         onSearch={(size) => setRadiusSize(size)}
       />
     </div>
