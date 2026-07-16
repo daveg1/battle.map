@@ -6317,15 +6317,6 @@
     "coords": { "lat": 56.066389, "lng": -4.769722 }
   },
   {
-    "name": "Battle of Aberdeen",
-    "article": "https://en.wikipedia.org/wiki/Battle_of_Aberdeen_(1644)",
-    "year": 1644,
-    "place": "Aberdeen",
-    "country": "Scotland",
-    "war": "Wars of the Three Kingdoms",
-    "coords": { "lat": 57.14101, "lng": -2.10668 }
-  },
-  {
     "name": "Battle of Tippermuir",
     "article": "https://en.wikipedia.org/wiki/Battle_of_Tippermuir",
     "year": 1644,
