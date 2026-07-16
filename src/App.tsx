@@ -14,11 +14,15 @@ import type { BattleItem, Point } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
+import { MapCountries } from "./components/map-countries";
 
 function App() {
   // Map state
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
+  const [hoveredCountryId, setHoveredCountryId] = useState<
+    number | undefined
+  >();
 
   // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
@@ -54,6 +58,7 @@ function App() {
   function handleMapClick(event: MapLayerMouseEvent) {
     if (!isMarking) return;
 
+    console.log(event);
     setRadiusPoint(event.lngLat);
     setIsMarking(false);
   }
@@ -61,6 +66,8 @@ function App() {
   return (
     <div className={"flex h-full"}>
       <Map
+        interactive={true}
+        interactiveLayerIds={["countries-fill"]}
         initialViewState={{
           longitude: -2.099075,
           latitude: 57.149651,
@@ -70,9 +77,15 @@ function App() {
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
         onClick={(ev) => handleMapClick(ev)}
+        onMouseMove={(ev) => {
+          const id = ev.features?.[0]?.id;
+          if (!id) return;
+          setHoveredCountryId(+id);
+        }}
         cursor={isMarking ? "crosshair" : ""}
       >
         <MapSource source="osm" />
+        <MapCountries hoveredCountryId={hoveredCountryId} />
 
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
