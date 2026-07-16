@@ -11,6 +11,7 @@ import { useFetchBattles } from "./hooks/use-fetch-battles";
 import { MapPin } from "./components/map-pin";
 import type { BattleItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
+import { ControlPanel } from "./components/control-panel";
 
 function App() {
   const { width, height } = useScreenSize();
@@ -39,7 +40,7 @@ function App() {
   });
 
   return (
-    <>
+    <div className="flex h-full">
       <Map
         initialViewState={{
           longitude: -2.099075,
@@ -72,7 +73,9 @@ function App() {
           />
         )}
       </Map>
-    </>
+
+      <ControlPanel />
+    </div>
   );
 }
 
