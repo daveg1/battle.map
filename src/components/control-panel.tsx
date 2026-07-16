@@ -1,12 +1,26 @@
 import clsx from "clsx";
 import { RangeSlider } from "./forms/range-slider";
+import { useState } from "react";
 
 interface Props {
   isMarking: boolean;
   onStartMarking(): void;
+  radiusSize: number;
+  onSearch(radius: number): void;
 }
 
-export function ControlPanel({ isMarking, onStartMarking }: Props) {
+export function ControlPanel({
+  isMarking,
+  onStartMarking,
+  radiusSize,
+  onSearch,
+}: Props) {
+  const [radius, setRadius] = useState(100);
+
+  function handleSearch() {
+    onSearch(radius);
+  }
+
   return (
     <div className="flex h-screen w-100 flex-col gap-8 bg-stone-800 p-4 text-white">
       <h2 className="text-xl">Search for battles</h2>
@@ -39,13 +53,16 @@ export function ControlPanel({ isMarking, onStartMarking }: Props) {
       <hr className="border-stone-700" />
 
       <section>
-        <RangeSlider label="Radius (km)" onChange={() => void 0} />
+        <RangeSlider label="Radius (km)" onChange={(v) => setRadius(v)} />
       </section>
 
       <hr className="border-stone-700" />
 
       <section>
-        <button className="w-full cursor-pointer rounded-lg bg-red-900 py-2 hover:bg-red-900/50">
+        <button
+          className="w-full cursor-pointer rounded-lg bg-red-900 py-2 hover:bg-red-900/50"
+          onClick={() => handleSearch()}
+        >
           Search
         </button>
       </section>

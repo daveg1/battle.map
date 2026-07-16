@@ -1,6 +1,6 @@
 import maplibregl from "maplibre-gl";
 import data from "../data/battles.json";
-import type { Point } from "../types/common";
+import type { BattleItem, Point } from "../types/common";
 
 function isPointInRadius(center: Point, pointToCheck: Point, radiusKm: number) {
   const centerPoint = new maplibregl.LngLat(center.lng, center.lat);
@@ -13,9 +13,18 @@ function isPointInRadius(center: Point, pointToCheck: Point, radiusKm: number) {
 
 export function useFetchBattles() {
   function getBattles(center: Point, radius: number) {
-    const battles = data.filter((b) =>
-      isPointInRadius(center, b.coords, radius),
-    );
+    const battles: BattleItem[] = [];
+
+    for (const entry of data) {
+      // skip dupes
+      if (battles.some((e) => e.name === entry.name)) {
+        continue;
+      }
+
+      if (isPointInRadius(center, entry.coords, radius)) {
+        battles.push(entry);
+      }
+    }
 
     return battles;
   }

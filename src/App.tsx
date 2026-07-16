@@ -19,7 +19,10 @@ function App() {
   // Map state
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
+
+  // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
+  const [radiusSize, setRadiusSize] = useState<number>(100);
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
@@ -28,10 +31,11 @@ function App() {
   // Battles
   const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
   const [getBattles] = useFetchBattles();
-  const battles = useMemo(
-    () => getBattles({ lat: 57.149651, lng: -2.099075 }, 100),
-    [getBattles],
-  );
+
+  const battles = useMemo(() => {
+    if (!radiusPoint) return [];
+    return getBattles(radiusPoint, radiusSize);
+  }, [radiusPoint, radiusSize, getBattles]);
 
   // Event handlers
   function handleEscapeKey(e: KeyboardEvent) {
@@ -82,7 +86,7 @@ function App() {
           />
         ))}
 
-        {radiusPoint && <MapRadius point={radiusPoint} />}
+        {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 
         {selectedBattle && (
           <MapPopup
@@ -98,6 +102,8 @@ function App() {
         onStartMarking={() => {
           setIsMarking(true);
         }}
+        radiusSize={radiusSize}
+        onSearch={(size) => setRadiusSize(size)}
       />
     </div>
   );

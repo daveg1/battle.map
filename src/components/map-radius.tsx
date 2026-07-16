@@ -4,10 +4,11 @@ import * as turf from "@turf/turf";
 
 interface Props {
   point: Point;
+  size: number;
 }
 
-export function MapRadius({ point }: Props) {
-  const circle = turf.circle([point.lng, point.lat], 100, {
+export function MapRadius({ point, size }: Props) {
+  const circle = turf.circle([point.lng, point.lat], size, {
     steps: 64, // Higher number = smoother circle
     units: "kilometers",
   });
