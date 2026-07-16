@@ -1,4 +1,9 @@
-import { Map } from "react-map-gl/maplibre";
+import {
+  GeolocateControl,
+  Map,
+  NavigationControl,
+  ScaleControl,
+} from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
@@ -31,6 +36,10 @@ function App() {
         style={{ width: `${width}px`, height: `${height}px` }}
       >
         <MapSource source={source} />
+
+        <GeolocateControl position="top-right" />
+        <NavigationControl position="top-right" />
+        <ScaleControl />
 
         {battles.map((battle) => (
           <MapPin
