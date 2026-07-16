@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import { MapPin } from "./components/map-pin";
-import type { BattleItem } from "./types/battle";
+import type { BattleItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 
 function App() {

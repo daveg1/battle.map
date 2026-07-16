@@ -1,5 +1,5 @@
 import { Popup } from "react-map-gl/maplibre";
-import type { BattleItem } from "../types/battle";
+import type { BattleItem } from "../types/common";
 import clsx from "clsx";
 
 interface Props {

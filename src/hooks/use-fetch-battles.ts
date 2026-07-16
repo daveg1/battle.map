@@ -1,10 +1,6 @@
 import maplibregl from "maplibre-gl";
 import data from "../data/battles.json";
-
-interface Point {
-  lat: number;
-  lng: number;
-}
+import type { Point } from "../types/common";
 
 function isPointInRadius(center: Point, pointToCheck: Point, radiusKm: number) {
   const centerPoint = new maplibregl.LngLat(center.lng, center.lat);
