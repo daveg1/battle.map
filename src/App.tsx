@@ -8,7 +8,8 @@ import {
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapSource } from "./components/map-source";
+import { MapLayerControl } from "./components/map-layer-control";
+import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import type { BattleMarkerItem, Point, SavedPinItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
@@ -47,6 +48,7 @@ function App() {
   );
 
   // Actions
+  const [mapSource, setMapSource] = useState<MapSourceType>("positron");
   const [isZooming, setIsZooming] = useState(false);
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
@@ -158,6 +160,12 @@ function App() {
     });
   }
 
+  function handleToggleMapSource() {
+    setMapSource((current) =>
+      current === "positron" ? "dark-matter" : "positron",
+    );
+  }
+
   function handleMapLoad() {
     const map = mapRef.current;
     if (!map || map.hasImage(BATTLE_PIN_IMAGE_ID)) return;
@@ -237,10 +245,11 @@ function App() {
         onClick={handleMapClick}
         cursor={isAltPressed ? "crosshair" : ""}
       >
-        <MapSource source="positron" />
+        <MapSource source={mapSource} />
 
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
+        <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
         <ScaleControl />
 
         {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
