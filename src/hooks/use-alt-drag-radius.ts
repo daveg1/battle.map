@@ -16,21 +16,67 @@ interface Props {
   radiusSize: number;
   setRadiusPoint: Dispatch<SetStateAction<Point | null>>;
   setRadiusSize: Dispatch<SetStateAction<number>>;
+  onResizeEnd?: (radiusSize: number) => void;
 }
 
 export function useAltDragRadius({
   radiusSize,
   setRadiusPoint,
   setRadiusSize,
+  onResizeEnd,
 }: Props) {
   const [isAltPressed, setIsAltPressed] = useState(false);
+  const currentRadiusRef = useRef(radiusSize);
+  const onResizeEndRef = useRef(onResizeEnd);
   const radiusDragState = useRef({
     isPointerDown: false,
-    startX: 0,
+    startClientX: 0,
     startRadius: 100,
+    getZoom: undefined as (() => number) | undefined,
   });
 
   useEffect(() => {
+    currentRadiusRef.current = radiusSize;
+    onResizeEndRef.current = onResizeEnd;
+  }, [radiusSize, onResizeEnd]);
+
+  useEffect(() => {
+    function finishAltDrag() {
+      if (!radiusDragState.current.isPointerDown) return;
+      radiusDragState.current.isPointerDown = false;
+      onResizeEndRef.current?.(currentRadiusRef.current);
+    }
+
+    function handleWindowMouseMove(event: MouseEvent) {
+      const dragState = radiusDragState.current;
+      if (!dragState.isPointerDown || !event.altKey) return;
+
+      event.preventDefault();
+      const deltaX = event.clientX - dragState.startClientX;
+      const stepDelta = Math.round(deltaX / ALT_DRAG_PIXELS_PER_STEP);
+      const radiusStepKm = getRadiusStepForZoom(dragState.getZoom?.());
+      const nextRadius = Math.min(
+        RADIUS_MAX_KM,
+        Math.max(
+          RADIUS_MIN_KM,
+          dragState.startRadius + stepDelta * radiusStepKm,
+        ),
+      );
+
+      setRadiusSize((current) => {
+        if (current === nextRadius) {
+          return current;
+        }
+
+        currentRadiusRef.current = nextRadius;
+        return nextRadius;
+      });
+    }
+
+    function handleWindowMouseUp() {
+      finishAltDrag();
+    }
+
     function handleKeyDown(event: KeyboardEvent) {
       if (event.altKey) {
         setIsAltPressed(true);
@@ -40,23 +86,29 @@ export function useAltDragRadius({
     function handleKeyUp(event: KeyboardEvent) {
       if (!event.altKey) {
         setIsAltPressed(false);
+        finishAltDrag();
       }
     }
 
     function handleWindowBlur() {
       setIsAltPressed(false);
+      finishAltDrag();
     }
 
+    window.addEventListener("mousemove", handleWindowMouseMove);
+    window.addEventListener("mouseup", handleWindowMouseUp);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("blur", handleWindowBlur);
 
     return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+      window.removeEventListener("mouseup", handleWindowMouseUp);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", handleWindowBlur);
     };
-  }, []);
+  }, [setRadiusSize]);
 
   function handleMapMouseDown(event: MapLayerMouseEvent) {
     if (!event.originalEvent.altKey) return;
@@ -65,45 +117,22 @@ export function useAltDragRadius({
     setRadiusPoint(event.lngLat);
     radiusDragState.current = {
       isPointerDown: true,
-      startX: event.point.x,
+      startClientX: event.originalEvent.clientX,
       startRadius: radiusSize,
+      getZoom: getMapZoomGetter(event),
     };
   }
 
-  function handleMapMouseMove(event: MapLayerMouseEvent) {
-    const dragState = radiusDragState.current;
-    if (!dragState.isPointerDown || !event.originalEvent.altKey) return;
-
-    const deltaX = event.point.x - dragState.startX;
-    event.preventDefault();
-
-    const stepDelta = Math.round(deltaX / ALT_DRAG_PIXELS_PER_STEP);
-    const radiusStepKm = getRadiusStepForZoom(getMapZoom(event));
-    const nextRadius = Math.min(
-      RADIUS_MAX_KM,
-      Math.max(
-        RADIUS_MIN_KM,
-        dragState.startRadius + stepDelta * radiusStepKm,
-      ),
-    );
-
-    setRadiusSize((current) => (current === nextRadius ? current : nextRadius));
-  }
-
-  function resetAltDragState() {
-    radiusDragState.current.isPointerDown = false;
-  }
-
-  function getMapZoom(event: MapLayerMouseEvent) {
+  function getMapZoomGetter(event: MapLayerMouseEvent) {
     const target = event.target as { getZoom?: () => number };
     if (typeof target.getZoom === "function") {
-      return target.getZoom();
+      return target.getZoom.bind(target);
     }
 
-    return ZOOM_REFERENCE_LEVEL;
+    return undefined;
   }
 
-  function getRadiusStepForZoom(zoom: number) {
+  function getRadiusStepForZoom(zoom = ZOOM_REFERENCE_LEVEL) {
     const zoomAdjustedStep =
       ALT_DRAG_BASE_RADIUS_STEP_KM *
       2 ** ((ZOOM_REFERENCE_LEVEL - zoom) / ZOOM_SCALE_SPAN);
@@ -117,7 +146,5 @@ export function useAltDragRadius({
   return {
     isAltPressed,
     handleMapMouseDown,
-    handleMapMouseMove,
-    resetAltDragState,
   };
 }

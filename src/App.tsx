@@ -35,12 +35,11 @@ function App() {
   const {
     isAltPressed,
     handleMapMouseDown,
-    handleMapMouseMove: handleAltDragMouseMove,
-    resetAltDragState,
   } = useAltDragRadius({
     radiusSize,
     setRadiusPoint,
     setRadiusSize,
+    onResizeEnd: (nextRadius) => setSearchRadiusSize(nextRadius),
   });
 
   // Battles
@@ -70,12 +69,6 @@ function App() {
     if (id) {
       setHoveredCountryId(+id);
     }
-    handleAltDragMouseMove(event);
-  }
-
-  function handleMapResizeEnd() {
-    setSearchRadiusSize(radiusSize);
-    resetAltDragState();
   }
 
   return (
@@ -93,8 +86,6 @@ function App() {
         onZoomEnd={() => setIsZooming(false)}
         onMouseDown={(ev) => handleMapMouseDown(ev)}
         onMouseMove={(ev) => handleMapMouseMove(ev)}
-        onMouseUp={() => handleMapResizeEnd()}
-        onMouseLeave={() => handleMapResizeEnd()}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
