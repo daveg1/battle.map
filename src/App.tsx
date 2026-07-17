@@ -14,6 +14,7 @@ import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
+import { useMapSession } from "./hooks/use-map-session";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
@@ -24,7 +25,7 @@ import {
 function App() {
   // Map state
   const { width, height } = useScreenSize();
-  const [zoom, _setZoom] = useState(12);
+  const { initialMapViewState, handleMapMoveEnd } = useMapSession();
 
   // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
@@ -107,16 +108,13 @@ function App() {
           BATTLE_CLUSTER_COUNT_LAYER_ID,
           BATTLE_UNCLUSTERED_LAYER_ID,
         ]}
-        initialViewState={{
-          longitude: -2.099075,
-          latitude: 57.149651,
-          zoom,
-        }}
+        initialViewState={initialMapViewState}
         style={{ width: `${width}px`, height: `${height}px` }}
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
-        onMouseDown={(ev) => handleMapMouseDown(ev)}
-        onClick={(ev) => handleMapClick(ev)}
+        onMoveEnd={handleMapMoveEnd}
+        onMouseDown={handleMapMouseDown}
+        onClick={handleMapClick}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
