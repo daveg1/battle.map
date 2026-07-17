@@ -20,15 +20,18 @@ export function MapPopup({
   onToggleSave,
   onClose,
 }: Props) {
-  if (!selectedMarker) return;
+  if (!selectedMarker) return null;
 
   const [battleIndex, setBattleIndex] = useState(0);
   const battleCount = selectedMarker.battles.length;
-  const currentBattle = selectedMarker.battles[battleIndex];
+  if (battleCount === 0) return null;
+
+  const clampedBattleIndex = Math.min(battleIndex, battleCount - 1);
+  const currentBattle = selectedMarker.battles[clampedBattleIndex];
 
   useEffect(() => {
     setBattleIndex(0);
-  }, [selectedMarker]);
+  }, [selectedMarker.id]);
 
   function handlePrev() {
     setBattleIndex((current) => Math.max(0, current - 1));
@@ -97,20 +100,20 @@ export function MapPopup({
             <button
               type="button"
               className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={battleIndex === 0}
+              disabled={clampedBattleIndex === 0}
               onClick={handlePrev}
             >
               Prev
             </button>
 
             <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-xs whitespace-nowrap text-stone-500 select-none">
-              {battleIndex + 1} / {battleCount}
+              {clampedBattleIndex + 1} / {battleCount}
             </span>
 
             <button
               type="button"
               className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={battleIndex === battleCount - 1}
+              disabled={clampedBattleIndex === battleCount - 1}
               onClick={handleNext}
             >
               Next
