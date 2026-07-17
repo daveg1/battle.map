@@ -28,6 +28,7 @@ function App() {
   // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
   const [radiusSize, setRadiusSize] = useState<number>(100);
+  const [searchRadiusSize, setSearchRadiusSize] = useState(radiusSize);
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
@@ -48,8 +49,8 @@ function App() {
 
   const battles = useMemo(() => {
     if (!radiusPoint) return [];
-    return getBattles(radiusPoint, radiusSize);
-  }, [radiusPoint, radiusSize, getBattles]);
+    return getBattles(radiusPoint, searchRadiusSize);
+  }, [radiusPoint, searchRadiusSize, getBattles]);
 
   // Event handlers
   function handleEscapeKey(e: KeyboardEvent) {
@@ -72,6 +73,11 @@ function App() {
     handleAltDragMouseMove(event);
   }
 
+  function handleMapResizeEnd() {
+    setSearchRadiusSize(radiusSize);
+    resetAltDragState();
+  }
+
   return (
     <div className={"flex h-full"}>
       <Map
@@ -87,8 +93,8 @@ function App() {
         onZoomEnd={() => setIsZooming(false)}
         onMouseDown={(ev) => handleMapMouseDown(ev)}
         onMouseMove={(ev) => handleMapMouseMove(ev)}
-        onMouseUp={() => resetAltDragState()}
-        onMouseLeave={() => resetAltDragState()}
+        onMouseUp={() => handleMapResizeEnd()}
+        onMouseLeave={() => handleMapResizeEnd()}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
@@ -119,7 +125,10 @@ function App() {
 
       <ControlPanel
         radius={radiusSize}
-        onSearch={(size) => setRadiusSize(size)}
+        onSearch={(size) => {
+          setRadiusSize(size);
+          setSearchRadiusSize(size);
+        }}
       />
     </div>
   );
