@@ -62,6 +62,15 @@
     }
   }
 
+  @keyframes nudge-title {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(8px);
+    }
+  }
+
   .arrow-1 {
     @apply will-change-transform;
     animation-name: arrow-1;
@@ -77,6 +86,17 @@
     animation-duration: calc(var(--anim-arrow-time) + var(--anim-arrow-delta));
     animation-timing-function: var(--ease-out);
     animation-delay: calc(var(--anim-arrow-delay) + var(--anim-arrow-delta));
+    animation-fill-mode: both;
+  }
+
+  .nudge-title {
+    @apply will-change-transform;
+    animation-name: nudge-title;
+    animation-duration: calc(var(--anim-arrow-time) - var(--anim-arrow-delta));
+    animation-timing-function: var(--ease-out);
+    animation-delay: calc(
+      var(--anim-arrow-delay) + var(--anim-arrow-time) - calc(var(--anim-arrow-delta) * 3)
+    );
     animation-fill-mode: both;
   }
 }

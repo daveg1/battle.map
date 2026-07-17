@@ -22,7 +22,7 @@ export function ControlPanel({
   onSelectSavedPin,
 }: Props) {
   return (
-    <div className="flex h-screen w-100 flex-col gap-4 bg-stone-800 p-4 text-white">
+    <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden bg-stone-800 p-4 text-white">
       <header className="relative">
         <img
           src="/arrow.png"
@@ -39,7 +39,7 @@ export function ControlPanel({
         />
 
         <h1
-          className="flex items-center justify-center gap-2 text-2xl font-semibold text-shadow-md"
+          className="nudge-title flex items-center justify-center gap-2 text-2xl font-semibold text-shadow-md"
           style={{ fontFamily: "AnironBold", letterSpacing: "-0.15em" }}
         >
           Battle Map
