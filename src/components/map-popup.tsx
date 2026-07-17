@@ -40,11 +40,12 @@ export function MapPopup({
 
   return (
     <Popup
-      anchor="top"
+      anchor="bottom"
       longitude={Number(selectedMarker.coords.lng)}
       latitude={Number(selectedMarker.coords.lat)}
       className={clsx(disabled && "is-zooming")}
       maxWidth="none"
+      offset={24}
       onClose={onClose}
       closeButton={false}
       closeOnClick={false}
