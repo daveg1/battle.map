@@ -30,7 +30,7 @@ export function ControlPanel({
         Battle Map
       </h1>
 
-      <section className="rounded border border-stone-700 bg-stone-900/40 p-3">
+      <section className="rounded-lg border border-stone-700 bg-stone-900/40 p-3">
         <h2 className="text-lg">Search</h2>
         <div className="mt-3 flex flex-col gap-4">
           <label className="flex flex-col gap-2">
@@ -56,7 +56,7 @@ export function ControlPanel({
         </div>
       </section>
 
-      <section className="flex min-h-0 flex-1 flex-col rounded border border-stone-700 bg-stone-900/40 p-3">
+      <section className="flex min-h-0 flex-1 flex-col rounded-lg border border-stone-700 bg-stone-900/40 p-3">
         <h3 className="text-lg">Saved pins</h3>
 
         <div className="mt-3 flex max-h-full min-h-0 flex-col overflow-y-auto">
