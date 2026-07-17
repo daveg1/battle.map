@@ -171,10 +171,8 @@ function App() {
 
         const map = mapRef.current;
         if (map) {
-          const currentZoom = map.getZoom();
           map.easeTo({
             center: [selected.coords.lng, selected.coords.lat],
-            zoom: Math.max(currentZoom, 5),
             duration: 600,
           });
         }

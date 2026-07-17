@@ -47,6 +47,8 @@ export function MapPopup({
       maxWidth="none"
       onClose={onClose}
       closeButton={false}
+      closeOnClick={false}
+      focusAfterOpen={false}
     >
       <div className="flex w-70 flex-col justify-end gap-2">
         <div className="flex items-center justify-between gap-2">
