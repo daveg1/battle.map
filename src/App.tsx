@@ -1,4 +1,5 @@
 import {
+  AttributionControl,
   GeolocateControl,
   Map,
   NavigationControl,
@@ -174,7 +175,20 @@ function App() {
 
   function handleMapLoad() {
     const map = mapRef.current;
-    if (!map || map.hasImage(BATTLE_PIN_IMAGE_ID)) return;
+    if (!map) return;
+
+    const collapseAttribution = () => {
+      const attribution = map
+        .getContainer()
+        .querySelector(".maplibregl-ctrl-attrib.maplibregl-compact-show");
+      if (attribution) {
+        attribution.classList.remove("maplibregl-compact-show");
+      }
+    };
+    collapseAttribution();
+    requestAnimationFrame(collapseAttribution);
+
+    if (map.hasImage(BATTLE_PIN_IMAGE_ID)) return;
 
     const markerImage = new Image();
     markerImage.onload = () => {
@@ -236,6 +250,7 @@ function App() {
       <Map
         ref={mapRef}
         interactive={true}
+        attributionControl={false}
         interactiveLayerIds={[
           BATTLE_CLUSTER_LAYER_ID,
           BATTLE_CLUSTER_COUNT_LAYER_ID,
@@ -257,6 +272,7 @@ function App() {
         <NavigationControl position="top-right" />
         <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
         <ScaleControl />
+        <AttributionControl compact={true} />
 
         {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 
