@@ -30,7 +30,7 @@ function App() {
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
-  const [isMarking, setIsMarking] = useState(false);
+  const [isAltPressed, setIsAltPressed] = useState(false);
 
   // Battles
   const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
@@ -46,21 +46,46 @@ function App() {
     if (e.key === "Escape") {
       e.preventDefault();
       setSelectedBattle(null);
-      setIsMarking(false);
     }
   }
 
   useEffect(() => {
     window.addEventListener("keydown", handleEscapeKey);
     return () => window.removeEventListener("keydown", handleEscapeKey);
-  });
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.altKey) {
+        setIsAltPressed(true);
+      }
+    }
+
+    function handleKeyUp(event: KeyboardEvent) {
+      if (!event.altKey) {
+        setIsAltPressed(false);
+      }
+    }
+
+    function handleWindowBlur() {
+      setIsAltPressed(false);
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleWindowBlur);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleWindowBlur);
+    };
+  }, []);
 
   function handleMapClick(event: MapLayerMouseEvent) {
-    if (!isMarking) return;
-
-    console.log(event);
-    setRadiusPoint(event.lngLat);
-    setIsMarking(false);
+    if (event.originalEvent.altKey) {
+      setRadiusPoint(event.lngLat);
+    }
   }
 
   return (
@@ -82,7 +107,7 @@ function App() {
           if (!id) return;
           setHoveredCountryId(+id);
         }}
-        cursor={isMarking ? "crosshair" : ""}
+        cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
         <MapCountries hoveredCountryId={hoveredCountryId} />
@@ -110,13 +135,7 @@ function App() {
         )}
       </Map>
 
-      <ControlPanel
-        isMarking={isMarking}
-        onStartMarking={() => {
-          setIsMarking(true);
-        }}
-        onSearch={(size) => setRadiusSize(size)}
-      />
+      <ControlPanel onSearch={(size) => setRadiusSize(size)} />
     </div>
   );
 }
