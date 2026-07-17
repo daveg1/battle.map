@@ -9,7 +9,7 @@ import { useScreenSize } from "./hooks/use-screen-size";
 import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
-import type { BattleMarkerItem, Point } from "./types/common";
+import type { BattleMarkerItem, Point, SavedPinItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
@@ -28,8 +28,10 @@ function App() {
   const {
     initialMapViewState,
     initialRadiusState,
+    initialSavedPins,
     handleMapMoveEnd,
     saveRadiusSessionState,
+    saveSavedPinsSessionState,
   } = useMapSession();
 
   // Radius
@@ -54,6 +56,7 @@ function App() {
   const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
     null,
   );
+  const [savedPins, setSavedPins] = useState<SavedPinItem[]>(initialSavedPins);
   const [getBattleMarkers] = useFetchBattles();
 
   const battleMarkers = useMemo(() => {
@@ -81,6 +84,33 @@ function App() {
       searchSize: searchRadiusSize,
     });
   }, [radiusPoint, radiusSize, searchRadiusSize, saveRadiusSessionState]);
+
+  useEffect(() => {
+    saveSavedPinsSessionState(savedPins);
+  }, [savedPins, saveSavedPinsSessionState]);
+
+  function createSavedPin(marker: BattleMarkerItem): SavedPinItem {
+    const primaryBattle = marker.battles[0];
+
+    return {
+      id: marker.id,
+      coords: marker.coords,
+      title: primaryBattle.name,
+      location: `${primaryBattle.place}, ${primaryBattle.country}`,
+      battleNames: marker.battles.map((battle) => battle.name),
+    };
+  }
+
+  function handleToggleSavedPin(marker: BattleMarkerItem) {
+    setSavedPins((current) => {
+      const isAlreadySaved = current.some((pin) => pin.id === marker.id);
+      if (isAlreadySaved) {
+        return current.filter((pin) => pin.id !== marker.id);
+      }
+
+      return [createSavedPin(marker), ...current];
+    });
+  }
 
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];
@@ -150,6 +180,8 @@ function App() {
           <MapPopup
             disabled={isZooming}
             selectedMarker={selectedMarker}
+            isSaved={savedPins.some((pin) => pin.id === selectedMarker.id)}
+            onToggleSave={handleToggleSavedPin}
             onClose={() => setSelectedMarker(null)}
           />
         )}
@@ -158,6 +190,7 @@ function App() {
       <ControlPanel
         radius={radiusSize}
         hasRadius={Boolean(radiusPoint)}
+        savedPins={savedPins}
         onSearch={(size) => {
           setRadiusSize(size);
           setSearchRadiusSize(size);
@@ -166,6 +199,9 @@ function App() {
           setRadiusPoint(null);
           setSelectedMarker(null);
         }}
+        onRemoveSavedPin={(id) =>
+          setSavedPins((current) => current.filter((pin) => pin.id !== id))
+        }
       />
     </div>
   );

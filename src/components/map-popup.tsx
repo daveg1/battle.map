@@ -7,21 +7,27 @@ import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
+  isSaved: boolean;
+  onToggleSave: (marker: BattleMarkerItem) => void;
   disabled: boolean;
   onClose: () => void;
 }
 
-export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
+export function MapPopup({
+  disabled,
+  selectedMarker,
+  isSaved,
+  onToggleSave,
+  onClose,
+}: Props) {
   if (!selectedMarker) return;
 
   const [battleIndex, setBattleIndex] = useState(0);
-  const [isSaved, setIsSaved] = useState(false);
   const battleCount = selectedMarker.battles.length;
   const currentBattle = selectedMarker.battles[battleIndex];
 
   useEffect(() => {
     setBattleIndex(0);
-    setIsSaved(false);
   }, [selectedMarker]);
 
   function handlePrev() {
@@ -55,7 +61,7 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
             className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
             aria-label="Save pin"
             title={isSaved ? "Unsave pin" : "Save pin"}
-            onClick={() => setIsSaved((current) => !current)}
+            onClick={() => onToggleSave(selectedMarker)}
           >
             {!isSaved && <BookmarkOutlineIcon className="size-4" />}
             {isSaved && <BookmarkSolidIcon className="size-4" />}

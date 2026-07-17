@@ -1,4 +1,4 @@
-import type { Point } from "../types/common";
+import type { Point, SavedPinItem } from "../types/common";
 
 const STORAGE_KEY = "battlemap:session";
 const SESSION_VERSION = 1;
@@ -31,6 +31,7 @@ export interface MapSessionState {
   version: number;
   map: SessionMapView;
   radius: SessionRadiusState;
+  savedPins: SavedPinItem[];
 }
 
 export function getInitialSessionState() {
@@ -53,11 +54,20 @@ export function saveRadiusState(radius: SessionRadiusState) {
   });
 }
 
+export function saveSavedPinsState(savedPins: SavedPinItem[]) {
+  const current = readSessionState();
+  writeSessionState({
+    ...current,
+    savedPins,
+  });
+}
+
 function createDefaultSessionState(): MapSessionState {
   return {
     version: SESSION_VERSION,
     map: DEFAULT_MAP_VIEW,
     radius: DEFAULT_RADIUS_STATE,
+    savedPins: [],
   };
 }
 
@@ -79,6 +89,7 @@ function readSessionState(): MapSessionState {
         ...DEFAULT_RADIUS_STATE,
         ...parsed.radius,
       },
+      savedPins: parsed.savedPins ?? [],
     };
   } catch (error) {
     console.warn("Could not parse saved map session state.", error);

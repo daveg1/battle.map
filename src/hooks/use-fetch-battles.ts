@@ -19,6 +19,13 @@ function arePointsNearby(pointA: Point, pointB: Point, maxDistanceMeters: number
   return source.distanceTo(target) <= maxDistanceMeters;
 }
 
+function createMarkerId(marker: BattleMarkerItem) {
+  return marker.battles
+    .map((battle) => battle.name)
+    .sort((a, b) => a.localeCompare(b))
+    .join("::");
+}
+
 export function useFetchBattles() {
   function getBattleMarkers(center: Point, radius: number) {
     const markers: BattleMarkerItem[] = [];
@@ -55,13 +62,17 @@ export function useFetchBattles() {
         }
 
         markers.push({
+          id: entry.name,
           coords: entry.coords,
           battles: [entry],
         });
       }
     }
 
-    return markers;
+    return markers.map((marker) => ({
+      ...marker,
+      id: createMarkerId(marker),
+    }));
   }
 
   return [getBattleMarkers] as const;

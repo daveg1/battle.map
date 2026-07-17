@@ -3,8 +3,10 @@ import {
   getInitialSessionState,
   saveMapViewState,
   saveRadiusState,
+  saveSavedPinsState,
   type SessionRadiusState,
 } from "../session/map-session";
+import type { SavedPinItem } from "../types/common";
 
 interface MoveEndEvent {
   viewState: {
@@ -29,10 +31,16 @@ export function useMapSession() {
     saveRadiusState(radius);
   }, []);
 
+  const saveSavedPinsSessionState = useCallback((savedPins: SavedPinItem[]) => {
+    saveSavedPinsState(savedPins);
+  }, []);
+
   return {
     initialMapViewState: initialSessionState.map,
     initialRadiusState: initialSessionState.radius,
+    initialSavedPins: initialSessionState.savedPins,
     handleMapMoveEnd,
     saveRadiusSessionState,
+    saveSavedPinsSessionState,
   };
 }

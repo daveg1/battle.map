@@ -14,6 +14,15 @@ export interface BattleItem {
 }
 
 export interface BattleMarkerItem {
+  id: string;
   coords: Point;
   battles: BattleItem[];
+}
+
+export interface SavedPinItem {
+  id: string;
+  coords: Point;
+  title: string;
+  location: string;
+  battleNames: string[];
 }
