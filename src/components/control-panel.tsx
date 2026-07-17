@@ -23,7 +23,12 @@ export function ControlPanel({
 }: Props) {
   return (
     <div className="flex h-screen w-100 flex-col gap-4 bg-stone-800 p-4 text-white">
-      <h1 className="text-2xl font-semibold">Battle Map</h1>
+      <h1
+        className="text-2xl font-semibold"
+        style={{ fontFamily: "AnironBold", letterSpacing: "-0.15em" }}
+      >
+        Battle Map
+      </h1>
 
       <section className="rounded border border-stone-700 bg-stone-900/40 p-3">
         <h2 className="text-lg">Search</h2>

@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "AnironBold";
+  src: url("/fonts/aniron-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
 @layer base {
   * {
     scrollbar-width: thin;
