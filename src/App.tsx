@@ -3,10 +3,11 @@ import {
   Map,
   NavigationControl,
   ScaleControl,
+  type MapRef,
   type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import type { BattleMarkerItem, Point, SavedPinItem } from "./types/common";
@@ -25,6 +26,7 @@ import {
 function App() {
   // Map state
   const { width, height } = useScreenSize();
+  const mapRef = useRef<MapRef | null>(null);
   const {
     initialMapViewState,
     initialRadiusState,
@@ -70,7 +72,9 @@ function App() {
     const markers = [...battleMarkers];
 
     for (const savedPin of savedPins) {
-      const alreadyVisible = markers.some((marker) => marker.id === savedPin.id);
+      const alreadyVisible = markers.some(
+        (marker) => marker.id === savedPin.id,
+      );
       if (alreadyVisible) continue;
 
       markers.push({
@@ -132,6 +136,27 @@ function App() {
     });
   }
 
+  function handleSelectSavedPin(id: string) {
+    const pin = savedPins.find((entry) => entry.id === id);
+    if (!pin) return;
+
+    setSelectedMarker({
+      id: pin.id,
+      coords: pin.coords,
+      battles: pin.battles,
+    });
+
+    const map = mapRef.current;
+    if (!map) return;
+
+    const currentZoom = map.getZoom();
+    map.easeTo({
+      center: [pin.coords.lng, pin.coords.lat],
+      zoom: Math.max(currentZoom, 5),
+      duration: 600,
+    });
+  }
+
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];
     if (!clickedFeature) return;
@@ -143,6 +168,16 @@ function App() {
       const selected = visibleMarkers[markerIndex];
       if (selected) {
         setSelectedMarker(selected);
+
+        const map = mapRef.current;
+        if (map) {
+          const currentZoom = map.getZoom();
+          map.easeTo({
+            center: [selected.coords.lng, selected.coords.lat],
+            zoom: Math.max(currentZoom, 5),
+            duration: 600,
+          });
+        }
       }
       return;
     }
@@ -171,6 +206,7 @@ function App() {
   return (
     <div className={"flex h-full"}>
       <Map
+        ref={mapRef}
         interactive={true}
         interactiveLayerIds={[
           BATTLE_CLUSTER_LAYER_ID,
@@ -225,6 +261,7 @@ function App() {
         onRemoveSavedPin={(id) =>
           setSavedPins((current) => current.filter((pin) => pin.id !== id))
         }
+        onSelectSavedPin={handleSelectSavedPin}
       />
     </div>
   );

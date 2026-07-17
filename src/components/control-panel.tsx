@@ -9,6 +9,7 @@ interface Props {
   onSearch(radius: number): void;
   onClear(): void;
   onRemoveSavedPin(id: string): void;
+  onSelectSavedPin(id: string): void;
 }
 
 export function ControlPanel({
@@ -18,6 +19,7 @@ export function ControlPanel({
   onSearch,
   onClear,
   onRemoveSavedPin,
+  onSelectSavedPin,
 }: Props) {
   return (
     <div className="flex h-screen w-100 flex-col gap-8 bg-stone-800 p-4 text-white">
@@ -68,6 +70,7 @@ export function ControlPanel({
             <div
               key={pin.id}
               className="group cursor-pointer px-3 py-2 select-none hover:bg-stone-700/40"
+              onClick={() => onSelectSavedPin(pin.id)}
             >
               <div className="flex items-center justify-between gap-2">
                 <div>
