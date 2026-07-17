@@ -1,5 +1,5 @@
 1. Add special clusters for pins with the same point/close-enough points (cf. Siege of Vienna & Battle of Vienna)
-2. Session saving
+2. [x] Session saving
 3. Timeline
 4. Place radius by placename
 5. Different theme? Dark mode maybe
