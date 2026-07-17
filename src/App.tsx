@@ -33,9 +33,11 @@ function App() {
     initialMapViewState,
     initialRadiusState,
     initialSavedPins,
+    initialLayer,
     handleMapMoveEnd,
     saveRadiusSessionState,
     saveSavedPinsSessionState,
+    saveLayerSessionState,
   } = useMapSession();
 
   // Radius
@@ -48,7 +50,7 @@ function App() {
   );
 
   // Actions
-  const [mapSource, setMapSource] = useState<MapSourceType>("positron");
+  const [mapSource, setMapSource] = useState<MapSourceType>(initialLayer);
   const [isZooming, setIsZooming] = useState(false);
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
@@ -114,6 +116,10 @@ function App() {
   useEffect(() => {
     saveSavedPinsSessionState(savedPins);
   }, [savedPins, saveSavedPinsSessionState]);
+
+  useEffect(() => {
+    saveLayerSessionState(mapSource);
+  }, [mapSource, saveLayerSessionState]);
 
   function createSavedPin(marker: BattleMarkerItem): SavedPinItem {
     const primaryBattle = marker.battles[0];

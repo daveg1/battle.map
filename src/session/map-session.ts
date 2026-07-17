@@ -27,11 +27,14 @@ export interface SessionRadiusState {
   searchSize: number;
 }
 
+export type SessionMapLayer = "positron" | "dark-matter";
+
 export interface MapSessionState {
   version: number;
   map: SessionMapView;
   radius: SessionRadiusState;
   savedPins: SavedPinItem[];
+  layer: SessionMapLayer;
 }
 
 export function getInitialSessionState() {
@@ -62,12 +65,21 @@ export function saveSavedPinsState(savedPins: SavedPinItem[]) {
   });
 }
 
+export function saveLayerState(layer: SessionMapLayer) {
+  const current = readSessionState();
+  writeSessionState({
+    ...current,
+    layer,
+  });
+}
+
 function createDefaultSessionState(): MapSessionState {
   return {
     version: SESSION_VERSION,
     map: DEFAULT_MAP_VIEW,
     radius: DEFAULT_RADIUS_STATE,
     savedPins: [],
+    layer: "positron",
   };
 }
 
@@ -90,6 +102,10 @@ function readSessionState(): MapSessionState {
         ...parsed.radius,
       },
       savedPins: parsed.savedPins ?? [],
+      layer:
+        parsed.layer === "positron" || parsed.layer === "dark-matter"
+          ? parsed.layer
+          : "positron",
     };
   } catch (error) {
     console.warn("Could not parse saved map session state.", error);
