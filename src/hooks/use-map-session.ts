@@ -1,5 +1,10 @@
 import { useCallback, useState } from "react";
-import { getInitialMapViewState, saveMapViewState } from "../session/map-session";
+import {
+  getInitialSessionState,
+  saveMapViewState,
+  saveRadiusState,
+  type SessionRadiusState,
+} from "../session/map-session";
 
 interface MoveEndEvent {
   viewState: {
@@ -10,7 +15,7 @@ interface MoveEndEvent {
 }
 
 export function useMapSession() {
-  const [initialMapViewState] = useState(() => getInitialMapViewState());
+  const [initialSessionState] = useState(() => getInitialSessionState());
 
   const handleMapMoveEnd = useCallback((event: MoveEndEvent) => {
     saveMapViewState({
@@ -20,5 +25,14 @@ export function useMapSession() {
     });
   }, []);
 
-  return { initialMapViewState, handleMapMoveEnd };
+  const saveRadiusSessionState = useCallback((radius: SessionRadiusState) => {
+    saveRadiusState(radius);
+  }, []);
+
+  return {
+    initialMapViewState: initialSessionState.map,
+    initialRadiusState: initialSessionState.radius,
+    handleMapMoveEnd,
+    saveRadiusSessionState,
+  };
 }

@@ -25,12 +25,21 @@ import {
 function App() {
   // Map state
   const { width, height } = useScreenSize();
-  const { initialMapViewState, handleMapMoveEnd } = useMapSession();
+  const {
+    initialMapViewState,
+    initialRadiusState,
+    handleMapMoveEnd,
+    saveRadiusSessionState,
+  } = useMapSession();
 
   // Radius
-  const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
-  const [radiusSize, setRadiusSize] = useState<number>(100);
-  const [searchRadiusSize, setSearchRadiusSize] = useState(radiusSize);
+  const [radiusPoint, setRadiusPoint] = useState<Point | null>(
+    initialRadiusState.point,
+  );
+  const [radiusSize, setRadiusSize] = useState<number>(initialRadiusState.size);
+  const [searchRadiusSize, setSearchRadiusSize] = useState<number>(
+    initialRadiusState.searchSize,
+  );
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
@@ -62,6 +71,14 @@ function App() {
     window.addEventListener("keydown", handleEscapeKey);
     return () => window.removeEventListener("keydown", handleEscapeKey);
   }, []);
+
+  useEffect(() => {
+    saveRadiusSessionState({
+      point: radiusPoint,
+      size: radiusSize,
+      searchSize: searchRadiusSize,
+    });
+  }, [radiusPoint, radiusSize, searchRadiusSize, saveRadiusSessionState]);
 
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];

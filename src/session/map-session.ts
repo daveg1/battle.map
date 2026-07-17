@@ -9,13 +9,19 @@ const DEFAULT_MAP_VIEW = {
   zoom: 12,
 };
 
-interface SessionMapView {
+const DEFAULT_RADIUS_STATE = {
+  point: null,
+  size: 100,
+  searchSize: 100,
+};
+
+export interface SessionMapView {
   longitude: number;
   latitude: number;
   zoom: number;
 }
 
-interface SessionRadiusState {
+export interface SessionRadiusState {
   point: Point | null;
   size: number;
   searchSize: number;
@@ -27,8 +33,8 @@ export interface MapSessionState {
   radius: SessionRadiusState;
 }
 
-export function getInitialMapViewState() {
-  return readSessionState().map;
+export function getInitialSessionState() {
+  return readSessionState();
 }
 
 export function saveMapViewState(view: SessionMapView) {
@@ -39,15 +45,19 @@ export function saveMapViewState(view: SessionMapView) {
   });
 }
 
+export function saveRadiusState(radius: SessionRadiusState) {
+  const current = readSessionState();
+  writeSessionState({
+    ...current,
+    radius,
+  });
+}
+
 function createDefaultSessionState(): MapSessionState {
   return {
     version: SESSION_VERSION,
     map: DEFAULT_MAP_VIEW,
-    radius: {
-      point: null,
-      size: 100,
-      searchSize: 100,
-    },
+    radius: DEFAULT_RADIUS_STATE,
   };
 }
 
@@ -58,7 +68,18 @@ function readSessionState(): MapSessionState {
   }
 
   try {
-    return JSON.parse(raw) as MapSessionState;
+    const parsed = JSON.parse(raw) as Partial<MapSessionState>;
+    return {
+      version: parsed.version ?? SESSION_VERSION,
+      map: {
+        ...DEFAULT_MAP_VIEW,
+        ...parsed.map,
+      },
+      radius: {
+        ...DEFAULT_RADIUS_STATE,
+        ...parsed.radius,
+      },
+    };
   } catch (error) {
     console.warn("Could not parse saved map session state.", error);
     return createDefaultSessionState();
