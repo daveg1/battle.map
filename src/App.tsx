@@ -13,7 +13,6 @@ import type { BattleItem, Point } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
-import { MapCountries } from "./components/map-countries";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
@@ -26,7 +25,6 @@ function App() {
   // Map state
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
-  const [hoveredCountryId, setHoveredCountryId] = useState<number>();
 
   // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
@@ -63,19 +61,6 @@ function App() {
     window.addEventListener("keydown", handleEscapeKey);
     return () => window.removeEventListener("keydown", handleEscapeKey);
   }, []);
-
-  function handleMapMouseMove(event: MapLayerMouseEvent) {
-    const countryFeature = event.features?.find(
-      (feature) => feature.layer.id === "countries-fill",
-    );
-    const id = countryFeature?.id;
-    if (id) {
-      setHoveredCountryId(+id);
-      return;
-    }
-
-    setHoveredCountryId(undefined);
-  }
 
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];
@@ -118,7 +103,6 @@ function App() {
       <Map
         interactive={true}
         interactiveLayerIds={[
-          "countries-fill",
           BATTLE_CLUSTER_LAYER_ID,
           BATTLE_CLUSTER_COUNT_LAYER_ID,
           BATTLE_UNCLUSTERED_LAYER_ID,
@@ -132,12 +116,10 @@ function App() {
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
         onMouseDown={(ev) => handleMapMouseDown(ev)}
-        onMouseMove={(ev) => handleMapMouseMove(ev)}
         onClick={(ev) => handleMapClick(ev)}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
-        <MapCountries hoveredCountryId={hoveredCountryId} />
 
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
