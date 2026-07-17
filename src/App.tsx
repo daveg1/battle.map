@@ -15,6 +15,7 @@ import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
 import { MapCountries } from "./components/map-countries";
+import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 
 function App() {
   // Map state
@@ -30,7 +31,16 @@ function App() {
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
-  const [isAltPressed, setIsAltPressed] = useState(false);
+  const {
+    isAltPressed,
+    handleMapMouseDown,
+    handleMapMouseMove: handleAltDragMouseMove,
+    resetAltDragState,
+  } = useAltDragRadius({
+    radiusSize,
+    setRadiusPoint,
+    setRadiusSize,
+  });
 
   // Battles
   const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
@@ -54,38 +64,12 @@ function App() {
     return () => window.removeEventListener("keydown", handleEscapeKey);
   }, []);
 
-  useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.altKey) {
-        setIsAltPressed(true);
-      }
+  function handleMapMouseMove(event: MapLayerMouseEvent) {
+    const id = event.features?.[0]?.id;
+    if (id) {
+      setHoveredCountryId(+id);
     }
-
-    function handleKeyUp(event: KeyboardEvent) {
-      if (!event.altKey) {
-        setIsAltPressed(false);
-      }
-    }
-
-    function handleWindowBlur() {
-      setIsAltPressed(false);
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("blur", handleWindowBlur);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("blur", handleWindowBlur);
-    };
-  }, []);
-
-  function handleMapClick(event: MapLayerMouseEvent) {
-    if (event.originalEvent.altKey) {
-      setRadiusPoint(event.lngLat);
-    }
+    handleAltDragMouseMove(event);
   }
 
   return (
@@ -101,12 +85,10 @@ function App() {
         style={{ width: `${width}px`, height: `${height}px` }}
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
-        onClick={(ev) => handleMapClick(ev)}
-        onMouseMove={(ev) => {
-          const id = ev.features?.[0]?.id;
-          if (!id) return;
-          setHoveredCountryId(+id);
-        }}
+        onMouseDown={(ev) => handleMapMouseDown(ev)}
+        onMouseMove={(ev) => handleMapMouseMove(ev)}
+        onMouseUp={() => resetAltDragState()}
+        onMouseLeave={() => resetAltDragState()}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
@@ -135,7 +117,10 @@ function App() {
         )}
       </Map>
 
-      <ControlPanel onSearch={(size) => setRadiusSize(size)} />
+      <ControlPanel
+        radius={radiusSize}
+        onSearch={(size) => setRadiusSize(size)}
+      />
     </div>
   );
 }

@@ -1,17 +1,13 @@
-import { useState } from "react";
-
 interface Props {
   label: string;
+  value: number;
   onChange: (value: number) => void;
 }
 
-export function RangeSlider({ label, onChange }: Props) {
-  const [value, setValue] = useState(100);
-
+export function RangeSlider({ label, value, onChange }: Props) {
   function handleUpdate(
     event: React.ChangeEvent<HTMLInputElement, HTMLInputElement>,
   ) {
-    setValue(event.target.valueAsNumber);
     onChange(event.target.valueAsNumber);
   }
 
