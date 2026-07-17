@@ -155,9 +155,14 @@ function App() {
 
       <ControlPanel
         radius={radiusSize}
+        hasRadius={Boolean(radiusPoint)}
         onSearch={(size) => {
           setRadiusSize(size);
           setSearchRadiusSize(size);
+        }}
+        onClear={() => {
+          setRadiusPoint(null);
+          setSelectedBattle(null);
         }}
       />
     </div>
