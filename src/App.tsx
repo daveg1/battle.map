@@ -9,7 +9,7 @@ import { useScreenSize } from "./hooks/use-screen-size";
 import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
-import type { BattleItem, Point } from "./types/common";
+import type { BattleMarkerItem, Point } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
@@ -51,19 +51,21 @@ function App() {
   });
 
   // Battles
-  const [selectedBattle, setSelectedBattle] = useState<BattleItem | null>(null);
-  const [getBattles] = useFetchBattles();
+  const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
+    null,
+  );
+  const [getBattleMarkers] = useFetchBattles();
 
-  const battles = useMemo(() => {
+  const battleMarkers = useMemo(() => {
     if (!radiusPoint) return [];
-    return getBattles(radiusPoint, searchRadiusSize);
-  }, [radiusPoint, searchRadiusSize, getBattles]);
+    return getBattleMarkers(radiusPoint, searchRadiusSize);
+  }, [radiusPoint, searchRadiusSize, getBattleMarkers]);
 
   // Event handlers
   function handleEscapeKey(e: KeyboardEvent) {
     if (e.key === "Escape") {
       e.preventDefault();
-      setSelectedBattle(null);
+      setSelectedMarker(null);
     }
   }
 
@@ -85,12 +87,12 @@ function App() {
     if (!clickedFeature) return;
 
     if (clickedFeature.layer.id === BATTLE_UNCLUSTERED_LAYER_ID) {
-      const battleIndex = Number(clickedFeature.properties?.battleIndex);
-      if (Number.isNaN(battleIndex)) return;
+      const markerIndex = Number(clickedFeature.properties?.markerIndex);
+      if (Number.isNaN(markerIndex)) return;
 
-      const selected = battles[battleIndex];
+      const selected = battleMarkers[markerIndex];
       if (selected) {
-        setSelectedBattle(selected);
+        setSelectedMarker(selected);
       }
       return;
     }
@@ -140,15 +142,15 @@ function App() {
         <NavigationControl position="top-right" />
         <ScaleControl />
 
-        <MapBattlePins battles={battles} />
+        <MapBattlePins markers={battleMarkers} />
 
         {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 
-        {selectedBattle && (
+        {selectedMarker && (
           <MapPopup
             disabled={isZooming}
-            selectedBattle={selectedBattle}
-            onClose={() => setSelectedBattle(null)}
+            selectedMarker={selectedMarker}
+            onClose={() => setSelectedMarker(null)}
           />
         )}
       </Map>
@@ -162,7 +164,7 @@ function App() {
         }}
         onClear={() => {
           setRadiusPoint(null);
-          setSelectedBattle(null);
+          setSelectedMarker(null);
         }}
       />
     </div>

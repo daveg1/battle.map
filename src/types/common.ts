@@ -12,3 +12,8 @@ export interface BattleItem {
   war: string;
   coords: Point;
 }
+
+export interface BattleMarkerItem {
+  coords: Point;
+  battles: BattleItem[];
+}

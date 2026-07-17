@@ -1,6 +1,6 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 import type { FeatureCollection, Point as GeoJsonPoint } from "geojson";
-import type { BattleItem } from "../types/common";
+import type { BattleMarkerItem } from "../types/common";
 
 export const BATTLE_SOURCE_ID = "battle-points";
 export const BATTLE_CLUSTER_LAYER_ID = "battle-clusters";
@@ -8,18 +8,18 @@ export const BATTLE_CLUSTER_COUNT_LAYER_ID = "battle-cluster-count";
 export const BATTLE_UNCLUSTERED_LAYER_ID = "battle-unclustered-point";
 
 interface Props {
-  battles: BattleItem[];
+  markers: BattleMarkerItem[];
 }
 
-export function MapBattlePins({ battles }: Props) {
-  const data: FeatureCollection<GeoJsonPoint, { battleIndex: number }> = {
+export function MapBattlePins({ markers }: Props) {
+  const data: FeatureCollection<GeoJsonPoint, { markerIndex: number }> = {
     type: "FeatureCollection",
-    features: battles.map((battle, index) => ({
+    features: markers.map((marker, index) => ({
       type: "Feature" as const,
-      properties: { battleIndex: index },
+      properties: { markerIndex: index },
       geometry: {
         type: "Point" as const,
-        coordinates: [battle.coords.lng, battle.coords.lat],
+        coordinates: [marker.coords.lng, marker.coords.lat],
       },
     })),
   };

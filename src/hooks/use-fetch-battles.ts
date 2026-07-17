@@ -1,6 +1,8 @@
 import maplibregl from "maplibre-gl";
 import data from "../data/battles.json";
-import type { BattleItem, Point } from "../types/common";
+import type { BattleMarkerItem, Point } from "../types/common";
+
+const MERGE_MARKER_DISTANCE_METERS = 50;
 
 function isPointInRadius(center: Point, pointToCheck: Point, radiusKm: number) {
   const centerPoint = new maplibregl.LngLat(center.lng, center.lat);
@@ -11,23 +13,56 @@ function isPointInRadius(center: Point, pointToCheck: Point, radiusKm: number) {
   return distance <= radiusKm * 1_000;
 }
 
+function arePointsNearby(pointA: Point, pointB: Point, maxDistanceMeters: number) {
+  const source = new maplibregl.LngLat(pointA.lng, pointA.lat);
+  const target = new maplibregl.LngLat(pointB.lng, pointB.lat);
+  return source.distanceTo(target) <= maxDistanceMeters;
+}
+
 export function useFetchBattles() {
-  function getBattles(center: Point, radius: number) {
-    const battles: BattleItem[] = [];
+  function getBattleMarkers(center: Point, radius: number) {
+    const markers: BattleMarkerItem[] = [];
+    const seenBattleNames = new Set<string>();
 
     for (const entry of data) {
       // skip dupes
-      if (battles.some((e) => e.name === entry.name)) {
+      if (seenBattleNames.has(entry.name)) {
         continue;
       }
+      seenBattleNames.add(entry.name);
 
       if (isPointInRadius(center, entry.coords, radius)) {
-        battles.push(entry);
+        const marker = markers.find((candidate) =>
+          arePointsNearby(
+            candidate.coords,
+            entry.coords,
+            MERGE_MARKER_DISTANCE_METERS,
+          ),
+        );
+
+        if (marker) {
+          const markerBattleCount = marker.battles.length;
+          marker.battles.push(entry);
+          marker.coords = {
+            lng:
+              (marker.coords.lng * markerBattleCount + entry.coords.lng) /
+              (markerBattleCount + 1),
+            lat:
+              (marker.coords.lat * markerBattleCount + entry.coords.lat) /
+              (markerBattleCount + 1),
+          };
+          continue;
+        }
+
+        markers.push({
+          coords: entry.coords,
+          battles: [entry],
+        });
       }
     }
 
-    return battles;
+    return markers;
   }
 
-  return [getBattles] as const;
+  return [getBattleMarkers] as const;
 }
