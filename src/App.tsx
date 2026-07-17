@@ -46,9 +46,6 @@ function App() {
     initialRadiusState.point,
   );
   const [radiusSize, setRadiusSize] = useState<number>(initialRadiusState.size);
-  const [searchRadiusSize, setSearchRadiusSize] = useState<number>(
-    initialRadiusState.searchSize,
-  );
 
   // Actions
   const [mapSource, setMapSource] = useState<MapSourceType>(initialLayer);
@@ -57,7 +54,6 @@ function App() {
     radiusSize,
     setRadiusPoint,
     setRadiusSize,
-    onResizeEnd: (nextRadius) => setSearchRadiusSize(nextRadius),
   });
 
   // Battles
@@ -71,8 +67,8 @@ function App() {
 
   const battleMarkers = useMemo(() => {
     if (!radiusPoint) return [];
-    return getBattleMarkers(radiusPoint, searchRadiusSize);
-  }, [radiusPoint, searchRadiusSize, getBattleMarkers]);
+    return getBattleMarkers(radiusPoint, radiusSize);
+  }, [radiusPoint, radiusSize, getBattleMarkers]);
 
   const visibleMarkers = useMemo(() => {
     const markers = [...battleMarkers];
@@ -110,9 +106,8 @@ function App() {
     saveRadiusSessionState({
       point: radiusPoint,
       size: radiusSize,
-      searchSize: searchRadiusSize,
     });
-  }, [radiusPoint, radiusSize, searchRadiusSize, saveRadiusSessionState]);
+  }, [radiusPoint, radiusSize, saveRadiusSessionState]);
 
   useEffect(() => {
     saveSavedPinsSessionState(savedPins);
@@ -296,10 +291,7 @@ function App() {
         radius={radiusSize}
         hasRadius={Boolean(radiusPoint)}
         savedPins={savedPins}
-        onSearch={(size) => {
-          setRadiusSize(size);
-          setSearchRadiusSize(size);
-        }}
+        onSearch={setRadiusSize}
         onClear={() => {
           setRadiusPoint(null);
           setSelectedMarker(null);

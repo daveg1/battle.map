@@ -12,7 +12,6 @@ const DEFAULT_MAP_VIEW = {
 const DEFAULT_RADIUS_STATE = {
   point: null,
   size: 100,
-  searchSize: 100,
 };
 
 export interface SessionMapView {
@@ -24,7 +23,6 @@ export interface SessionMapView {
 export interface SessionRadiusState {
   point: Point | null;
   size: number;
-  searchSize: number;
 }
 
 export type SessionMapLayer = "positron" | "dark-matter";

@@ -16,18 +16,14 @@ interface Props {
   radiusSize: number;
   setRadiusPoint: Dispatch<SetStateAction<Point | null>>;
   setRadiusSize: Dispatch<SetStateAction<number>>;
-  onResizeEnd?: (radiusSize: number) => void;
 }
 
 export function useAltDragRadius({
   radiusSize,
   setRadiusPoint,
   setRadiusSize,
-  onResizeEnd,
 }: Props) {
   const [isAltPressed, setIsAltPressed] = useState(false);
-  const currentRadiusRef = useRef(radiusSize);
-  const onResizeEndRef = useRef(onResizeEnd);
   const radiusDragState = useRef({
     isPointerDown: false,
     startClientX: 0,
@@ -36,15 +32,9 @@ export function useAltDragRadius({
   });
 
   useEffect(() => {
-    currentRadiusRef.current = radiusSize;
-    onResizeEndRef.current = onResizeEnd;
-  }, [radiusSize, onResizeEnd]);
-
-  useEffect(() => {
     function finishAltDrag() {
       if (!radiusDragState.current.isPointerDown) return;
       radiusDragState.current.isPointerDown = false;
-      onResizeEndRef.current?.(currentRadiusRef.current);
     }
 
     function handleWindowMouseMove(event: MouseEvent) {
@@ -67,8 +57,6 @@ export function useAltDragRadius({
         if (current === nextRadius) {
           return current;
         }
-
-        currentRadiusRef.current = nextRadius;
         return nextRadius;
       });
     }
