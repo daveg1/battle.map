@@ -19,6 +19,7 @@ import { useMapSession } from "./hooks/use-map-session";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
+  BATTLE_PIN_IMAGE_ID,
   BATTLE_UNCLUSTERED_LAYER_ID,
   MapBattlePins,
 } from "./components/map-battle-pins";
@@ -157,6 +158,21 @@ function App() {
     });
   }
 
+  function handleMapLoad() {
+    const map = mapRef.current;
+    if (!map || map.hasImage(BATTLE_PIN_IMAGE_ID)) return;
+
+    const markerImage = new Image();
+    markerImage.onload = () => {
+      const loadedMap = mapRef.current;
+      if (!loadedMap || loadedMap.hasImage(BATTLE_PIN_IMAGE_ID)) return;
+      loadedMap.addImage(BATTLE_PIN_IMAGE_ID, markerImage, {
+        pixelRatio: 2,
+      });
+    };
+    markerImage.src = "/battlepin.png";
+  }
+
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];
     if (!clickedFeature) return;
@@ -216,22 +232,23 @@ function App() {
         onZoomStart={() => setIsZooming(true)}
         onZoomEnd={() => setIsZooming(false)}
         onMoveEnd={handleMapMoveEnd}
+        onLoad={handleMapLoad}
         onMouseDown={handleMapMouseDown}
         onClick={handleMapClick}
         cursor={isAltPressed ? "crosshair" : ""}
       >
-        <MapSource source="osm" />
+        <MapSource source="positron" />
 
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
         <ScaleControl />
 
+        {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
+
         <MapBattlePins
           markers={visibleMarkers}
           savedMarkerIds={savedPins.map((pin) => pin.id)}
         />
-
-        {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 
         {selectedMarker && (
           <MapPopup

@@ -6,6 +6,7 @@ export const BATTLE_SOURCE_ID = "battle-points";
 export const BATTLE_CLUSTER_LAYER_ID = "battle-clusters";
 export const BATTLE_CLUSTER_COUNT_LAYER_ID = "battle-cluster-count";
 export const BATTLE_UNCLUSTERED_LAYER_ID = "battle-unclustered-point";
+export const BATTLE_PIN_IMAGE_ID = "battle-pin-icon";
 
 interface Props {
   markers: BattleMarkerItem[];
@@ -77,18 +78,14 @@ export function MapBattlePins({ markers, savedMarkerIds }: Props) {
 
       <Layer
         id={BATTLE_UNCLUSTERED_LAYER_ID}
-        type="circle"
+        type="symbol"
         filter={["!", ["has", "point_count"]]}
-        paint={{
-          "circle-color": [
-            "case",
-            ["boolean", ["get", "isSaved"], false],
-            "#2563eb",
-            "#dc2626",
-          ],
-          "circle-radius": 6,
-          "circle-stroke-width": 1,
-          "circle-stroke-color": "#ffffff",
+        layout={{
+          "icon-image": BATTLE_PIN_IMAGE_ID,
+          "icon-size": 0.45,
+          "icon-anchor": "bottom",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
         }}
       />
     </Source>

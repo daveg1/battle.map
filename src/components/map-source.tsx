@@ -1,19 +1,19 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 
 interface Props {
-  source: "osm"; // | "other";
+  source: "positron";
 }
 
 export function MapSource(_props: Props) {
   return (
     <Source
-      id="osm-source"
+      id="positron-source"
       type="raster"
-      tiles={["https://tile.openstreetmap.org/{z}/{x}/{y}.png"]}
+      tiles={["https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"]}
       tileSize={256}
-      attribution="&copy; OpenStreetMap"
+      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     >
-      <Layer type="raster" source="osm-source" />
+      <Layer type="raster" source="positron-source" />
     </Source>
   );
 }

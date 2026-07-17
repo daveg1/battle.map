@@ -19,15 +19,15 @@ export function MapRadius({ point, size }: Props) {
         id="search-zone-fill"
         type="fill"
         paint={{
-          "fill-color": "#3b82f6",
-          "fill-opacity": 0.4,
+          "fill-color": "#60758d",
+          "fill-opacity": 0.24,
         }}
       />
       <Layer
         id="search-zone-stroke"
         type="line"
         paint={{
-          "line-color": "#1d4ed8",
+          "line-color": "#4f647b",
           "line-width": 2,
         }}
       />
