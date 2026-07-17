@@ -14,7 +14,7 @@ export function RangeSlider({ label, value, onChange }: Props) {
   return (
     <>
       <div className="flex items-baseline justify-between">
-        <h3>{label}</h3>
+        <h3 className="text-sm">{label}</h3>
 
         <input
           type="number"
