@@ -37,4 +37,46 @@
   .is-zooming .maplibregl-popup-content {
     pointer-events: none !important;
   }
+
+  :root {
+    --anim-arrow-delay: 900ms;
+    --anim-arrow-time: 280ms;
+    --anim-arrow-delta: 25ms;
+  }
+
+  @keyframes arrow-1 {
+    from {
+      transform: translateX(-140px) translateY(-16px) rotate(8deg);
+    }
+    to {
+      transform: translateX(0) translateY(0) rotate(8deg);
+    }
+  }
+
+  @keyframes arrow-2 {
+    from {
+      transform: translateX(-155px) translateY(-48px) rotate(28deg);
+    }
+    to {
+      transform: translateX(0) translateY(0) rotate(28deg);
+    }
+  }
+
+  .arrow-1 {
+    @apply will-change-transform;
+    animation-name: arrow-1;
+    animation-duration: var(--anim-arrow-time);
+    animation-timing-function: var(--ease-out);
+    animation-delay: var(--anim-arrow-delay);
+    animation-fill-mode: both;
+  }
+
+  .arrow-2 {
+    @apply will-change-transform;
+    animation-name: arrow-2;
+    animation-duration: calc(var(--anim-arrow-time) + var(--anim-arrow-delta));
+    animation-timing-function: var(--ease-out);
+    animation-delay: calc(var(--anim-arrow-delay) + var(--anim-arrow-delta));
+    animation-fill-mode: both;
+  }
 }
