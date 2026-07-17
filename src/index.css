@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(87 83 78) rgb(41 37 36);
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: rgb(41 37 36);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgb(87 83 78);
+    border: 2px solid rgb(41 37 36);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgb(120 113 108);
+  }
+}
+
 @layer components {
   .is-zooming .maplibregl-popup-content {
     pointer-events: none !important;

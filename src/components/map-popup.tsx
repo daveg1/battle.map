@@ -2,6 +2,8 @@ import { Popup } from "react-map-gl/maplibre";
 import type { BattleMarkerItem } from "../types/common";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
+import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
+import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -13,11 +15,13 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
   if (!selectedMarker) return;
 
   const [battleIndex, setBattleIndex] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
   const battleCount = selectedMarker.battles.length;
   const currentBattle = selectedMarker.battles[battleIndex];
 
   useEffect(() => {
     setBattleIndex(0);
+    setIsSaved(false);
   }, [selectedMarker]);
 
   function handlePrev() {
@@ -38,7 +42,7 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
       onClose={onClose}
       closeButton={false}
     >
-      <div className="flex w-70 flex-col gap-2">
+      <div className="flex w-70 flex-col justify-end gap-2">
         <div className="flex items-center justify-between gap-2">
           <h3
             className="min-w-0 truncate text-lg font-semibold"
@@ -46,11 +50,16 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
           >
             {currentBattle.name}
           </h3>
-          {battleCount > 1 && (
-            <span className="shrink-0 text-xs whitespace-nowrap text-stone-500">
-              {battleIndex + 1} / {battleCount}
-            </span>
-          )}
+          <button
+            type="button"
+            className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
+            aria-label="Save pin"
+            title={isSaved ? "Unsave pin" : "Save pin"}
+            onClick={() => setIsSaved((current) => !current)}
+          >
+            {!isSaved && <BookmarkOutlineIcon className="size-4" />}
+            {isSaved && <BookmarkSolidIcon className="size-4" />}
+          </button>
         </div>
 
         <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
@@ -75,7 +84,7 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
         </a>
 
         {battleCount > 1 && (
-          <div className="mt-1 flex items-center gap-2">
+          <div className="relative mt-1 flex items-center justify-between gap-2">
             <button
               type="button"
               className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
@@ -85,9 +94,13 @@ export function MapPopup({ disabled, selectedMarker, onClose }: Props) {
               Prev
             </button>
 
+            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-xs whitespace-nowrap text-stone-500 select-none">
+              {battleIndex + 1} / {battleCount}
+            </span>
+
             <button
               type="button"
-              className="ml-auto cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={battleIndex === battleCount - 1}
               onClick={handleNext}
             >
