@@ -1,0 +1,83 @@
+import { Layer, Source } from "react-map-gl/maplibre";
+import type { FeatureCollection, Point as GeoJsonPoint } from "geojson";
+import type { BattleItem } from "../types/common";
+
+export const BATTLE_SOURCE_ID = "battle-points";
+export const BATTLE_CLUSTER_LAYER_ID = "battle-clusters";
+export const BATTLE_CLUSTER_COUNT_LAYER_ID = "battle-cluster-count";
+export const BATTLE_UNCLUSTERED_LAYER_ID = "battle-unclustered-point";
+
+interface Props {
+  battles: BattleItem[];
+}
+
+export function MapBattlePins({ battles }: Props) {
+  const data: FeatureCollection<GeoJsonPoint, { battleIndex: number }> = {
+    type: "FeatureCollection",
+    features: battles.map((battle, index) => ({
+      type: "Feature" as const,
+      properties: { battleIndex: index },
+      geometry: {
+        type: "Point" as const,
+        coordinates: [battle.coords.lng, battle.coords.lat],
+      },
+    })),
+  };
+
+  return (
+    <Source
+      id={BATTLE_SOURCE_ID}
+      type="geojson"
+      data={data}
+      cluster={true}
+      clusterMaxZoom={14}
+      clusterRadius={20}
+    >
+      <Layer
+        id={BATTLE_CLUSTER_LAYER_ID}
+        type="circle"
+        filter={["has", "point_count"]}
+        paint={{
+          "circle-color": [
+            "step",
+            ["get", "point_count"],
+            "#f59e0b",
+            10,
+            "#f97316",
+            30,
+            "#ea580c",
+          ],
+          "circle-radius": ["step", ["get", "point_count"], 16, 10, 20, 30, 24],
+          "circle-stroke-width": 1,
+          "circle-stroke-color": "#ffffff",
+        }}
+      />
+
+      <Layer
+        id={BATTLE_CLUSTER_COUNT_LAYER_ID}
+        type="symbol"
+        filter={["has", "point_count"]}
+        layout={{
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-font": ["Open Sans Bold"],
+          "text-size": 12,
+        }}
+        paint={{
+          "text-color": "#ffffff",
+        }}
+      />
+
+      <Layer
+        id={BATTLE_UNCLUSTERED_LAYER_ID}
+        type="circle"
+        filter={["!", ["has", "point_count"]]}
+        paint={{
+          "circle-color": "#dc2626",
+          "circle-radius": 6,
+          "circle-stroke-width": 1,
+          "circle-stroke-color": "#ffffff",
+        }}
+      />
+    </Source>
+  );
+}

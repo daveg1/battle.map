@@ -9,21 +9,24 @@ import { useScreenSize } from "./hooks/use-screen-size";
 import { useEffect, useMemo, useState } from "react";
 import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
-import { MapPin } from "./components/map-pin";
 import type { BattleItem, Point } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/control-panel";
 import { MapRadius } from "./components/map-radius";
 import { MapCountries } from "./components/map-countries";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
+import {
+  BATTLE_CLUSTER_COUNT_LAYER_ID,
+  BATTLE_CLUSTER_LAYER_ID,
+  BATTLE_UNCLUSTERED_LAYER_ID,
+  MapBattlePins,
+} from "./components/map-battle-pins";
 
 function App() {
   // Map state
   const { width, height } = useScreenSize();
   const [zoom, _setZoom] = useState(12);
-  const [hoveredCountryId, setHoveredCountryId] = useState<
-    number | undefined
-  >();
+  const [hoveredCountryId, setHoveredCountryId] = useState<number>();
 
   // Radius
   const [radiusPoint, setRadiusPoint] = useState<Point | null>(null);
@@ -32,10 +35,7 @@ function App() {
 
   // Actions
   const [isZooming, setIsZooming] = useState(false);
-  const {
-    isAltPressed,
-    handleMapMouseDown,
-  } = useAltDragRadius({
+  const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
     setRadiusPoint,
     setRadiusSize,
@@ -65,9 +65,51 @@ function App() {
   }, []);
 
   function handleMapMouseMove(event: MapLayerMouseEvent) {
-    const id = event.features?.[0]?.id;
+    const countryFeature = event.features?.find(
+      (feature) => feature.layer.id === "countries-fill",
+    );
+    const id = countryFeature?.id;
     if (id) {
       setHoveredCountryId(+id);
+      return;
+    }
+
+    setHoveredCountryId(undefined);
+  }
+
+  function handleMapClick(event: MapLayerMouseEvent) {
+    const clickedFeature = event.features?.[0];
+    if (!clickedFeature) return;
+
+    if (clickedFeature.layer.id === BATTLE_UNCLUSTERED_LAYER_ID) {
+      const battleIndex = Number(clickedFeature.properties?.battleIndex);
+      if (Number.isNaN(battleIndex)) return;
+
+      const selected = battles[battleIndex];
+      if (selected) {
+        setSelectedBattle(selected);
+      }
+      return;
+    }
+
+    if (
+      [BATTLE_CLUSTER_LAYER_ID, BATTLE_CLUSTER_COUNT_LAYER_ID].includes(
+        clickedFeature.layer.id,
+      )
+    ) {
+      const map = event.target as {
+        getZoom?: () => number;
+        easeTo?: (options: { center: [number, number]; zoom: number }) => void;
+      };
+
+      if (!map.getZoom || !map.easeTo) {
+        return;
+      }
+
+      map.easeTo({
+        center: [event.lngLat.lng, event.lngLat.lat],
+        zoom: map.getZoom() + 2,
+      });
     }
   }
 
@@ -75,7 +117,12 @@ function App() {
     <div className={"flex h-full"}>
       <Map
         interactive={true}
-        interactiveLayerIds={["countries-fill"]}
+        interactiveLayerIds={[
+          "countries-fill",
+          BATTLE_CLUSTER_LAYER_ID,
+          BATTLE_CLUSTER_COUNT_LAYER_ID,
+          BATTLE_UNCLUSTERED_LAYER_ID,
+        ]}
         initialViewState={{
           longitude: -2.099075,
           latitude: 57.149651,
@@ -86,6 +133,7 @@ function App() {
         onZoomEnd={() => setIsZooming(false)}
         onMouseDown={(ev) => handleMapMouseDown(ev)}
         onMouseMove={(ev) => handleMapMouseMove(ev)}
+        onClick={(ev) => handleMapClick(ev)}
         cursor={isAltPressed ? "crosshair" : ""}
       >
         <MapSource source="osm" />
@@ -95,13 +143,7 @@ function App() {
         <NavigationControl position="top-right" />
         <ScaleControl />
 
-        {battles.map((battle) => (
-          <MapPin
-            key={`marker-${battle.name}`}
-            battle={battle}
-            onClick={(battle) => setSelectedBattle(battle)}
-          />
-        ))}
+        <MapBattlePins battles={battles} />
 
         {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 
