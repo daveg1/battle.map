@@ -3722,7 +3722,7 @@
     "place": "Galway",
     "country": "Ireland",
     "war": "Irish Confederate Wars",
-    "coords": { "lat": 53.2728, "lng": -9.0417 }
+    "coords": { "lat": 53.271944, "lng": -9.048889 }
   },
   {
     "name": "Break of Dromore",
@@ -3911,7 +3911,7 @@
     "place": "Enniscorthy",
     "country": "Ireland",
     "war": "United Irishmen Rebellion",
-    "coords": { "lat": 52.5019, "lng": -6.5658 }
+    "coords": { "lat": 52.501389, "lng": -6.569722 }
   },
   {
     "name": "Battle of Three Rocks",
