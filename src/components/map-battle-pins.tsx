@@ -9,14 +9,22 @@ export const BATTLE_UNCLUSTERED_LAYER_ID = "battle-unclustered-point";
 
 interface Props {
   markers: BattleMarkerItem[];
+  savedMarkerIds: string[];
 }
 
-export function MapBattlePins({ markers }: Props) {
-  const data: FeatureCollection<GeoJsonPoint, { markerIndex: number }> = {
+export function MapBattlePins({ markers, savedMarkerIds }: Props) {
+  const savedMarkerIdSet = new Set(savedMarkerIds);
+  const data: FeatureCollection<
+    GeoJsonPoint,
+    { markerIndex: number; isSaved: boolean }
+  > = {
     type: "FeatureCollection",
     features: markers.map((marker, index) => ({
       type: "Feature" as const,
-      properties: { markerIndex: index },
+      properties: {
+        markerIndex: index,
+        isSaved: savedMarkerIdSet.has(marker.id),
+      },
       geometry: {
         type: "Point" as const,
         coordinates: [marker.coords.lng, marker.coords.lat],
@@ -72,7 +80,12 @@ export function MapBattlePins({ markers }: Props) {
         type="circle"
         filter={["!", ["has", "point_count"]]}
         paint={{
-          "circle-color": "#dc2626",
+          "circle-color": [
+            "case",
+            ["boolean", ["get", "isSaved"], false],
+            "#2563eb",
+            "#dc2626",
+          ],
           "circle-radius": 6,
           "circle-stroke-width": 1,
           "circle-stroke-color": "#ffffff",

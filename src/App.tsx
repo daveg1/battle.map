@@ -56,13 +56,32 @@ function App() {
   const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
     null,
   );
-  const [savedPins, setSavedPins] = useState<SavedPinItem[]>(initialSavedPins);
+  const [savedPins, setSavedPins] = useState<SavedPinItem[]>(
+    initialSavedPins.filter((pin) => pin.battles?.length),
+  );
   const [getBattleMarkers] = useFetchBattles();
 
   const battleMarkers = useMemo(() => {
     if (!radiusPoint) return [];
     return getBattleMarkers(radiusPoint, searchRadiusSize);
   }, [radiusPoint, searchRadiusSize, getBattleMarkers]);
+
+  const visibleMarkers = useMemo(() => {
+    const markers = [...battleMarkers];
+
+    for (const savedPin of savedPins) {
+      const alreadyVisible = markers.some((marker) => marker.id === savedPin.id);
+      if (alreadyVisible) continue;
+
+      markers.push({
+        id: savedPin.id,
+        coords: savedPin.coords,
+        battles: savedPin.battles,
+      });
+    }
+
+    return markers;
+  }, [battleMarkers, savedPins]);
 
   // Event handlers
   function handleEscapeKey(e: KeyboardEvent) {
@@ -98,6 +117,7 @@ function App() {
       title: primaryBattle.name,
       location: `${primaryBattle.place}, ${primaryBattle.country}`,
       battleNames: marker.battles.map((battle) => battle.name),
+      battles: marker.battles,
     };
   }
 
@@ -120,7 +140,7 @@ function App() {
       const markerIndex = Number(clickedFeature.properties?.markerIndex);
       if (Number.isNaN(markerIndex)) return;
 
-      const selected = battleMarkers[markerIndex];
+      const selected = visibleMarkers[markerIndex];
       if (selected) {
         setSelectedMarker(selected);
       }
@@ -172,7 +192,10 @@ function App() {
         <NavigationControl position="top-right" />
         <ScaleControl />
 
-        <MapBattlePins markers={battleMarkers} />
+        <MapBattlePins
+          markers={visibleMarkers}
+          savedMarkerIds={savedPins.map((pin) => pin.id)}
+        />
 
         {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
 

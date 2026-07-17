@@ -25,4 +25,5 @@ export interface SavedPinItem {
   title: string;
   location: string;
   battleNames: string[];
+  battles: BattleItem[];
 }
