@@ -7,19 +7,19 @@ import {
   type MapRef,
   type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
-import * as turf from "@turf/turf";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
-import type { BattleMarkerItem, Point, SavedPinItem } from "./types/common";
+import type { BattleMarkerItem, SavedPinItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import { useMapSession } from "./hooks/use-map-session";
+import { useRadiusState } from "./hooks/use-radius-state";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
@@ -44,10 +44,13 @@ function App() {
   } = useMapSession();
 
   // Radius
-  const [radiusPoint, setRadiusPoint] = useState<Point | null>(
-    initialRadiusState.point,
-  );
-  const [radiusSize, setRadiusSize] = useState<number>(initialRadiusState.size);
+  const {
+    radiusPoint,
+    radiusSize,
+    setRadiusPoint,
+    setRadiusSize,
+    fitRadiusToScreen,
+  } = useRadiusState({ mapRef, initialRadiusState, saveRadiusSessionState });
 
   // Actions
   const [mapSource, setMapSource] = useState<MapSourceType>(initialLayer);
@@ -91,35 +94,6 @@ function App() {
     return markers;
   }, [battleMarkers, savedPins]);
 
-  // Event handlers
-  const fitRadiusToScreen = useCallback(() => {
-    if (!radiusPoint) {
-      return;
-    }
-
-    const map = mapRef.current;
-    if (!map) {
-      return;
-    }
-
-    const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
-      steps: 64,
-      units: "kilometers",
-    });
-    const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
-
-    map.fitBounds(
-      [
-        [minLng, minLat],
-        [maxLng, maxLat],
-      ],
-      {
-        padding: 40,
-        duration: 600,
-      },
-    );
-  }, [radiusPoint, radiusSize]);
-
   // TODO: create some kind of keyboard shortcut handler here so we can register keyboard shortcuts and use them via a hook.
   // TODO: this will also let us see which events have already been set.
   // TODO: furthermore we can use this registry to quickly print a list of available commands:
@@ -146,13 +120,6 @@ function App() {
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [handleGlobalKeyDown]);
-
-  useEffect(() => {
-    saveRadiusSessionState({
-      point: radiusPoint,
-      size: radiusSize,
-    });
-  }, [radiusPoint, radiusSize, saveRadiusSessionState]);
 
   useEffect(() => {
     saveSavedPinsSessionState(savedPins);
