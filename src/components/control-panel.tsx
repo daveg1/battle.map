@@ -1,12 +1,15 @@
 import { RangeSlider } from "./forms/range-slider";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import type { SavedPinItem } from "../types/common";
+import { useState, type SubmitEvent } from "react";
+import { useSearchPlaces } from "../hooks/use-search-places";
+import type { Point, SavedPinItem } from "../types/common";
 
 interface Props {
   radius: number;
   hasRadius: boolean;
   savedPins: SavedPinItem[];
   onSearch(radius: number): void;
+  onSetRadiusPoint(point: Point): void;
   onClear(): void;
   onRemoveSavedPin(id: string): void;
   onSelectSavedPin(id: string): void;
@@ -17,10 +20,47 @@ export function ControlPanel({
   hasRadius,
   savedPins,
   onSearch,
+  onSetRadiusPoint,
   onClear,
   onRemoveSavedPin,
   onSelectSavedPin,
 }: Props) {
+  const [placeQuery, setPlaceQuery] = useState("");
+  const [placeError, setPlaceError] = useState<string | null>(null);
+  const [isSearchingPlace, setIsSearchingPlace] = useState(false);
+  const [searchPlaces] = useSearchPlaces();
+
+  async function handlePlaceSearchSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPlaceError(null);
+    setIsSearchingPlace(true);
+
+    try {
+      const results = await searchPlaces(placeQuery);
+      const firstResult = results[0];
+
+      if (!firstResult) {
+        setPlaceError("No matching places found in Europe.");
+        return;
+      }
+
+      const lat = Number.parseFloat(firstResult.lat);
+      const lng = Number.parseFloat(firstResult.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        setPlaceError("The selected place has invalid coordinates.");
+        return;
+      }
+
+      onSetRadiusPoint({ lat, lng });
+      setPlaceQuery(firstResult.display_name || firstResult.name || placeQuery);
+    } catch (error) {
+      console.error("Could not search places.", error);
+      setPlaceError("Could not search places right now.");
+    } finally {
+      setIsSearchingPlace(false);
+    }
+  }
+
   return (
     <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden bg-stone-800 p-4 text-white">
       <header className="relative">
@@ -49,15 +89,23 @@ export function ControlPanel({
       <section className="rounded-lg border border-stone-700 bg-stone-900/40 p-3">
         <h2 className="text-lg">Search</h2>
         <div className="mt-3 flex flex-col gap-4">
-          <label className="flex flex-col gap-2">
-            <span className="text-sm">Place [todo]</span>
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={handlePlaceSearchSubmit}
+          >
+            <span className="text-sm">Place</span>
             <input
-              disabled
               type="search"
               className="rounded bg-stone-700 px-2 py-1"
               placeholder="Search placename"
+              value={placeQuery}
+              onChange={(event) => setPlaceQuery(event.target.value)}
+              disabled={isSearchingPlace}
             />
-          </label>
+            {placeError && (
+              <p className="text-xs text-rose-300">{placeError}</p>
+            )}
+          </form>
 
           <RangeSlider label="Radius (km)" value={radius} onChange={onSearch} />
 

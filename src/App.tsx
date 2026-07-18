@@ -292,6 +292,10 @@ function App() {
         hasRadius={Boolean(radiusPoint)}
         savedPins={savedPins}
         onSearch={setRadiusSize}
+        onSetRadiusPoint={(point) => {
+          setRadiusPoint(point);
+          setSelectedMarker(null);
+        }}
         onClear={() => {
           setRadiusPoint(null);
           setSelectedMarker(null);
