@@ -1,19 +1,21 @@
 import { useCallback, useEffect } from "react";
+import { useMapStore } from "../stores/use-map-store";
 
 interface Props {
   hasRadius: boolean;
-  onEscape(): void;
   onFitRadius(): void;
 }
 
 // TODO: refactor to allow registering shortcuts
-export function useMapShortcuts({ hasRadius, onEscape, onFitRadius }: Props) {
+export function useMapShortcuts({ hasRadius, onFitRadius }: Props) {
+  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+
   // Handles global keyboard shortcuts (Escape to close popup, Alt+Enter to fit radius).
   const handleGlobalKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        onEscape();
+        clearSelectedMarker();
         return;
       }
 
@@ -24,7 +26,7 @@ export function useMapShortcuts({ hasRadius, onEscape, onFitRadius }: Props) {
         onFitRadius();
       }
     },
-    [hasRadius, onEscape, onFitRadius],
+    [clearSelectedMarker, hasRadius, onFitRadius],
   );
 
   useEffect(() => {

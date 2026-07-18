@@ -4,13 +4,16 @@ import {
   Map,
   NavigationControl,
   ScaleControl,
-  type MapLayerMouseEvent,
   type MapRef,
 } from "react-map-gl/maplibre";
 import type { RefObject } from "react";
+import { useAltDragRadius } from "../hooks/use-alt-drag-radius";
+import { useBattleMarkers } from "../hooks/use-battle-markers";
+import { useMapRuntime } from "../hooks/use-map-runtime";
+import { useMapShortcuts } from "../hooks/use-map-shortcuts";
 import { FitRadiusControl } from "./fit-radius-control";
 import { MapLayerControl } from "./map-layer-control";
-import { MapSource, type MapSourceType } from "./map-source";
+import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
 import {
@@ -19,7 +22,10 @@ import {
   BATTLE_UNCLUSTERED_LAYER_ID,
   MapBattlePins,
 } from "./map-battle-pins";
-import type { BattleMarkerItem, Point, SavedPinItem } from "../types/common";
+import type { BattleMarkerItem } from "../types/common";
+import { useMapStore } from "../stores/use-map-store";
+import type { SessionMapLayer } from "../session/map-session";
+import { useScreenSize } from "../hooks/use-screen-size";
 
 interface MoveEndEvent {
   viewState: {
@@ -31,57 +37,70 @@ interface MoveEndEvent {
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
-  width: number;
-  height: number;
   initialMapViewState: {
     longitude: number;
     latitude: number;
     zoom: number;
   };
-  mapSource: MapSourceType;
-  isZooming: boolean;
-  isAltPressed: boolean;
-  radiusPoint: Point | null;
-  radiusSize: number;
-  visibleMarkers: BattleMarkerItem[];
-  savedPins: SavedPinItem[];
-  selectedMarker: BattleMarkerItem | null;
-  onZoomStart(): void;
-  onZoomEnd(): void;
+  initialLayer: SessionMapLayer;
+  saveLayerSessionState(layer: SessionMapLayer): void;
   onMoveEnd(event: MoveEndEvent): void;
-  onLoad(): void;
-  onMouseDown(event: MapLayerMouseEvent): void;
-  onClick(event: MapLayerMouseEvent): void;
-  onToggleMapSource(): void;
-  onFitRadius(): void;
+  onFitRadiusToScreen(): void;
   onToggleSave(marker: BattleMarkerItem): void;
-  onClosePopup(): void;
 }
 
 export function MapView({
   mapRef,
-  width,
-  height,
   initialMapViewState,
-  mapSource,
-  isZooming,
-  isAltPressed,
-  radiusPoint,
-  radiusSize,
-  visibleMarkers,
-  savedPins,
-  selectedMarker,
-  onZoomStart,
-  onZoomEnd,
+  initialLayer,
+  saveLayerSessionState,
   onMoveEnd,
-  onLoad,
-  onMouseDown,
-  onClick,
-  onToggleMapSource,
-  onFitRadius,
+  onFitRadiusToScreen,
   onToggleSave,
-  onClosePopup,
 }: Props) {
+  const { width, height } = useScreenSize();
+
+  const radiusPoint = useMapStore((state) => state.radiusPoint);
+  const radiusSize = useMapStore((state) => state.radiusSize);
+  const setRadiusPoint = useMapStore((state) => state.setRadiusPoint);
+  const setRadiusSize = useMapStore((state) => state.setRadiusSize);
+  const savedPins = useMapStore((state) => state.savedPins);
+  const selectedMarker = useMapStore((state) => state.selectedMarker);
+  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+
+  const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
+    radiusSize,
+    setRadiusPoint,
+    setRadiusSize,
+  });
+
+  const [visibleMarkers] = useBattleMarkers({
+    radiusPoint,
+    radiusSize,
+    savedPins,
+  });
+
+  const {
+    mapSource,
+    isZooming,
+    setIsZooming,
+    handleToggleMapSource,
+    handleMapLoad,
+    handleMapClick,
+  } = useMapRuntime({
+    mapRef,
+    initialLayer,
+    saveLayerSessionState,
+    visibleMarkers,
+    radiusPoint,
+    fitRadiusToScreen: onFitRadiusToScreen,
+  });
+
+  useMapShortcuts({
+    hasRadius: Boolean(radiusPoint),
+    onFitRadius: onFitRadiusToScreen,
+  });
+
   return (
     <Map
       ref={mapRef}
@@ -94,20 +113,20 @@ export function MapView({
       ]}
       initialViewState={initialMapViewState}
       style={{ width: `${width}px`, height: `${height}px` }}
-      onZoomStart={onZoomStart}
-      onZoomEnd={onZoomEnd}
+      onZoomStart={() => setIsZooming(true)}
+      onZoomEnd={() => setIsZooming(false)}
       onMoveEnd={onMoveEnd}
-      onLoad={onLoad}
-      onMouseDown={onMouseDown}
-      onClick={onClick}
+      onLoad={handleMapLoad}
+      onMouseDown={handleMapMouseDown}
+      onClick={handleMapClick}
       cursor={isAltPressed ? "crosshair" : ""}
     >
       <MapSource source={mapSource} />
 
       <GeolocateControl position="top-right" />
       <NavigationControl position="top-right" />
-      <MapLayerControl source={mapSource} onToggle={onToggleMapSource} />
-      <FitRadiusControl onFit={onFitRadius} disabled={!radiusPoint} />
+      <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
+      <FitRadiusControl onFit={onFitRadiusToScreen} disabled={!radiusPoint} />
       <ScaleControl />
       <AttributionControl compact={true} />
 
@@ -124,7 +143,7 @@ export function MapView({
           selectedMarker={selectedMarker}
           isSaved={savedPins.some((pin) => pin.id === selectedMarker.id)}
           onToggleSave={onToggleSave}
-          onClose={onClosePopup}
+          onClose={clearSelectedMarker}
         />
       )}
     </Map>

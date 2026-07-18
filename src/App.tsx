@@ -1,20 +1,14 @@
 import { type MapRef } from "react-map-gl/maplibre";
-import { useScreenSize } from "./hooks/use-screen-size";
 import { useRef } from "react";
 import { MapView } from "./components/map-view";
 import { ControlPanel } from "./components/panel";
-import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
-import { useBattleMarkers } from "./hooks/use-battle-markers";
-import { useMapRuntime } from "./hooks/use-map-runtime";
 import { useMapSession } from "./hooks/use-map-session";
-import { useMapShortcuts } from "./hooks/use-map-shortcuts";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useMapStore } from "./stores/use-map-store";
 
 function App() {
   // Map state
-  const { width, height } = useScreenSize();
   const mapRef = useRef<MapRef | null>(null);
   const {
     initialMapViewState,
@@ -36,20 +30,6 @@ function App() {
     fitRadiusToScreen,
   } = useRadiusState({ mapRef, initialRadiusState, saveRadiusSessionState });
 
-  // Actions
-  const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
-    radiusSize,
-    setRadiusPoint,
-    setRadiusSize,
-  });
-
-  // Battles
-  const selectedMarker = useMapStore((state) => state.selectedMarker);
-  const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
-  const clearSelectedMarker = useMapStore(
-    (state) => state.clearSelectedMarker,
-  );
-
   const {
     savedPins,
     handleToggleSavedPin,
@@ -61,60 +41,16 @@ function App() {
     saveSavedPinsSessionState,
   });
 
-  const [visibleMarkers] = useBattleMarkers({
-    radiusPoint,
-    radiusSize,
-    savedPins,
-  });
-
-  const {
-    mapSource,
-    isZooming,
-    setIsZooming,
-    handleToggleMapSource,
-    handleMapLoad,
-    handleMapClick,
-  } = useMapRuntime({
-    mapRef,
-    initialLayer,
-    saveLayerSessionState,
-    visibleMarkers,
-    setSelectedMarker,
-    radiusPoint,
-    fitRadiusToScreen,
-  });
-
-  useMapShortcuts({
-    hasRadius: Boolean(radiusPoint),
-    onEscape: clearSelectedMarker,
-    onFitRadius: fitRadiusToScreen,
-  });
-
   return (
     <div className="flex h-full">
       <MapView
         mapRef={mapRef}
-        width={width}
-        height={height}
         initialMapViewState={initialMapViewState}
-        mapSource={mapSource}
-        isZooming={isZooming}
-        isAltPressed={isAltPressed}
-        radiusPoint={radiusPoint}
-        radiusSize={radiusSize}
-        visibleMarkers={visibleMarkers}
-        savedPins={savedPins}
-        selectedMarker={selectedMarker}
-        onZoomStart={() => setIsZooming(true)}
-        onZoomEnd={() => setIsZooming(false)}
+        initialLayer={initialLayer}
+        saveLayerSessionState={saveLayerSessionState}
         onMoveEnd={handleMapMoveEnd}
-        onLoad={handleMapLoad}
-        onMouseDown={handleMapMouseDown}
-        onClick={handleMapClick}
-        onToggleMapSource={handleToggleMapSource}
-        onFitRadius={fitRadiusToScreen}
+        onFitRadiusToScreen={fitRadiusToScreen}
         onToggleSave={handleToggleSavedPin}
-        onClosePopup={clearSelectedMarker}
       />
 
       <ControlPanel
@@ -124,7 +60,7 @@ function App() {
         onSearch={setRadiusSize}
         onSetRadiusPoint={(point) => {
           setRadiusPoint(point);
-          clearSelectedMarker();
+          useMapStore.getState().clearSelectedMarker();
 
           const map = mapRef.current;
           if (!map) return;
@@ -137,7 +73,7 @@ function App() {
         }}
         onClear={() => {
           setRadiusPoint(null);
-          clearSelectedMarker();
+          useMapStore.getState().clearSelectedMarker();
         }}
         onRemoveSavedPin={handleRemoveSavedPin}
         onSelectSavedPin={handleSelectSavedPin}

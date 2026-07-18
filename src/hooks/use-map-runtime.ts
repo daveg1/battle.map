@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { Dispatch, RefObject, SetStateAction } from "react";
+import type { RefObject } from "react";
 import type { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
@@ -16,7 +16,6 @@ interface Props {
   initialLayer: MapSourceType;
   saveLayerSessionState(layer: MapSourceType): void;
   visibleMarkers: BattleMarkerItem[];
-  setSelectedMarker: Dispatch<SetStateAction<BattleMarkerItem | null>>;
   radiusPoint: Point | null;
   fitRadiusToScreen(): void;
 }
@@ -26,14 +25,16 @@ export function useMapRuntime({
   initialLayer,
   saveLayerSessionState,
   visibleMarkers,
-  setSelectedMarker,
   radiusPoint,
   fitRadiusToScreen,
 }: Props) {
-  const hasInitializedMapSource = useRef(false);
   const mapSource = useMapStore((state) => state.mapSource);
   const initializeMapSource = useMapStore((state) => state.initializeMapSource);
   const toggleMapSource = useMapStore((state) => state.toggleMapSource);
+  const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
+
+  const hasInitializedMapSource = useRef(false);
+
   const [isZooming, setIsZooming] = useState(false);
 
   useEffect(() => {
