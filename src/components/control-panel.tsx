@@ -1,4 +1,4 @@
-import { ControlPanelHeader } from "./control-panel-header";
+import { ControlPanelLogo } from "./control-panel-logo";
 import { ControlPanelSearchArea } from "./control-panel-search-area";
 import { ControlPanelSection } from "./control-panel-section";
 import { ControlPanelSavedPins } from "./control-panel-saved-pins";
@@ -27,7 +27,7 @@ export function ControlPanel({
 }: Props) {
   return (
     <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden bg-stone-800 p-4 text-white">
-      <ControlPanelHeader />
+      <ControlPanelLogo />
 
       <ControlPanelSection title="Search">
         <ControlPanelSearchArea

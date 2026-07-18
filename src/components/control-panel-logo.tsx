@@ -1,4 +1,4 @@
-export function ControlPanelHeader() {
+export function ControlPanelLogo() {
   return (
     <header className="relative">
       <img
