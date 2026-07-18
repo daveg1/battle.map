@@ -1,9 +1,44 @@
-1. [x] Add special clusters for pins with the same point/close-enough points (cf. Siege of Vienna & Battle of Vienna)
-2. [x] Session saving
-3. Timeline
-4. Place radius by placename
-5. [x] Different theme? Dark mode maybe
-6. Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
-7. Shortcuts button + popover
-8. Investigate data quality
-9. [x] Add saving pins
+Pins:
+	✔ Add special clusters for pins with the same point/close-enough points (cf. Siege of Vienna & Battle of Vienna)
+	✔ Add saving pins
+
+Sessions:
+	✔ Session saving and restore on next visit
+
+Timeline:
+	☐ add a historical timeline with the ability to select a range within in
+	see Brushable Timeline: https://observablehq.com/@maritrinez/d3-brushable-timeline
+	see another design: https://dribbble.com/shots/3191739-Time-Range-Selector
+	☐ pins not included in the selection have opacity 50%
+
+Zooming:
+	☐ have min and max zoom (add user option to toggle this off)
+	☐ fade icons when zoomed out enough
+
+Starting screen:
+	☐ Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
+
+Searching:
+	☐ Search for a place to create radius
+
+User options:
+	☐ option to toggle clustering
+	☐ option to always show all pins
+	Pins outside the radius get opacity 50%
+
+Shortcuts:
+	☐ Shortcuts button + popover
+	☐ alt+H - hides saved pins
+	☐ alt+R - toggles radius
+
+Mobile:
+	☐ re-add "Click to drop radius" for mobile usability
+
+Data:
+	☐ get data for asia
+	☐ Investigate data quality
+
+
+Theme:
+	✔ Dark and light mode toggle
+	☐ update pin icon to be more visible on dark mode
