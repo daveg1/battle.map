@@ -7,16 +7,16 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource } from "./components/map-source";
-import { useFetchBattles } from "./hooks/use-fetch-battles";
 import type { BattleMarkerItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
+import { useBattleMarkers } from "./hooks/use-battle-markers";
 import { useMapRuntime } from "./hooks/use-map-runtime";
 import { useMapSession } from "./hooks/use-map-session";
 import { useRadiusState } from "./hooks/use-radius-state";
@@ -63,6 +63,7 @@ function App() {
   const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
     null,
   );
+
   const {
     savedPins,
     handleToggleSavedPin,
@@ -74,31 +75,12 @@ function App() {
     saveSavedPinsSessionState,
     setSelectedMarker,
   });
-  const [getBattleMarkers] = useFetchBattles();
 
-  const battleMarkers = useMemo(() => {
-    if (!radiusPoint) return [];
-    return getBattleMarkers(radiusPoint, radiusSize);
-  }, [radiusPoint, radiusSize, getBattleMarkers]);
-
-  const visibleMarkers = useMemo(() => {
-    const markers = [...battleMarkers];
-
-    for (const savedPin of savedPins) {
-      const alreadyVisible = markers.some(
-        (marker) => marker.id === savedPin.id,
-      );
-      if (alreadyVisible) continue;
-
-      markers.push({
-        id: savedPin.id,
-        coords: savedPin.coords,
-        battles: savedPin.battles,
-      });
-    }
-
-    return markers;
-  }, [battleMarkers, savedPins]);
+  const [visibleMarkers] = useBattleMarkers({
+    radiusPoint,
+    radiusSize,
+    savedPins,
+  });
 
   const {
     mapSource,
