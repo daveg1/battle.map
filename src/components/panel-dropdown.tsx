@@ -78,7 +78,9 @@ export function PanelDropdown({
         placeholder="Search placename"
         value={query}
         onChange={(event) => {
-          onQueryChange(event.target.value);
+          const nextQuery = event.target.value;
+          onQueryChange(nextQuery);
+          setIsOpen(Boolean(nextQuery.trim()));
         }}
         onFocus={() => {
           if (query.trim()) {
