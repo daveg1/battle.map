@@ -6,7 +6,7 @@ interface Props {
   onSetRadiusPoint(point: Point): void;
 }
 
-export function ControlPanelSearch({ onSetRadiusPoint }: Props) {
+export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
   const [placeQuery, setPlaceQuery] = useState("");
   const [placeError, setPlaceError] = useState<string | null>(null);
   const [isSearchingPlace, setIsSearchingPlace] = useState(false);
