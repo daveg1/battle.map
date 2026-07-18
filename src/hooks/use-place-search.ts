@@ -43,14 +43,14 @@ async function fetchPlaces(query: string, limit: number) {
   });
 }
 
-interface UsePlaceSearchNewOptions {
+interface UsePlaceSearchOptions {
   debounceMs?: number;
   limit?: number;
   enabled?: boolean;
   initialQuery?: string;
 }
 
-export function usePlaceSearchNew(options: UsePlaceSearchNewOptions = {}) {
+export function usePlaceSearch(options: UsePlaceSearchOptions = {}) {
   const {
     debounceMs = DEFAULT_DEBOUNCE_MS,
     limit = DEFAULT_LIMIT,

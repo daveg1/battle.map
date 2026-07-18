@@ -6,7 +6,7 @@ import {
   type FocusEvent,
   type KeyboardEvent,
 } from "react";
-import { PLACE_SEARCH_MIN_CHARS } from "../hooks/use-place-search-new";
+import { PLACE_SEARCH_MIN_CHARS } from "../hooks/use-place-search";
 import type { SearchResultItem } from "../types/api";
 
 interface Props {

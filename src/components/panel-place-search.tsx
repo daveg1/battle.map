@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { usePlaceSearchNew } from "../hooks/use-place-search-new";
+import { usePlaceSearch } from "../hooks/use-place-search";
 import type { SearchResultItem } from "../types/api";
 import type { Point } from "../types/common";
 import { PanelDropdown } from "./panel-dropdown";
@@ -13,7 +13,7 @@ export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
   const [selectedResult, setSelectedResult] = useState<SearchResultItem | null>(
     null,
   );
-  const { query, setQuery, isFetching, isError, results } = usePlaceSearchNew();
+  const { query, setQuery, isFetching, isError, results } = usePlaceSearch();
 
   function applyPlaceSelection(result: SearchResultItem) {
     const lat = Number.parseFloat(result.lat);
@@ -24,7 +24,6 @@ export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
     }
 
     onSetRadiusPoint({ lat, lng });
-    // TODO: is this necessary??
     setQuery(result.display_name || result.name || query);
     setSelectionError(null);
   }
