@@ -13,13 +13,14 @@ import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
-import type { BattleMarkerItem, SavedPinItem } from "./types/common";
+import type { BattleMarkerItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import { useMapSession } from "./hooks/use-map-session";
 import { useRadiusState } from "./hooks/use-radius-state";
+import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
@@ -65,9 +66,17 @@ function App() {
   const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
     null,
   );
-  const [savedPins, setSavedPins] = useState<SavedPinItem[]>(
-    initialSavedPins.filter((pin) => pin.battles?.length),
-  );
+  const {
+    savedPins,
+    handleToggleSavedPin,
+    handleRemoveSavedPin,
+    handleSelectSavedPin,
+  } = useSavedPinsState({
+    mapRef,
+    initialSavedPins,
+    saveSavedPinsSessionState,
+    setSelectedMarker,
+  });
   const [getBattleMarkers] = useFetchBattles();
 
   const battleMarkers = useMemo(() => {
@@ -98,6 +107,7 @@ function App() {
   // TODO: this will also let us see which events have already been set.
   // TODO: furthermore we can use this registry to quickly print a list of available commands:
   // `key+combo` <name> - <description>
+  // Handles global keyboard shortcuts (Escape to close popup, Alt+Enter to fit radius).
   const handleGlobalKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -122,57 +132,8 @@ function App() {
   }, [handleGlobalKeyDown]);
 
   useEffect(() => {
-    saveSavedPinsSessionState(savedPins);
-  }, [savedPins, saveSavedPinsSessionState]);
-
-  useEffect(() => {
     saveLayerSessionState(mapSource);
   }, [mapSource, saveLayerSessionState]);
-
-  function createSavedPin(marker: BattleMarkerItem): SavedPinItem {
-    const primaryBattle = marker.battles[0];
-
-    return {
-      id: marker.id,
-      coords: marker.coords,
-      title: primaryBattle.name,
-      location: `${primaryBattle.place}, ${primaryBattle.country}`,
-      battleNames: marker.battles.map((battle) => battle.name),
-      battles: marker.battles,
-    };
-  }
-
-  function handleToggleSavedPin(marker: BattleMarkerItem) {
-    setSavedPins((current) => {
-      const isAlreadySaved = current.some((pin) => pin.id === marker.id);
-      if (isAlreadySaved) {
-        return current.filter((pin) => pin.id !== marker.id);
-      }
-
-      return [createSavedPin(marker), ...current];
-    });
-  }
-
-  function handleSelectSavedPin(id: string) {
-    const pin = savedPins.find((entry) => entry.id === id);
-    if (!pin) return;
-
-    setSelectedMarker({
-      id: pin.id,
-      coords: pin.coords,
-      battles: pin.battles,
-    });
-
-    const map = mapRef.current;
-    if (!map) return;
-
-    const currentZoom = map.getZoom();
-    map.easeTo({
-      center: [pin.coords.lng, pin.coords.lat],
-      zoom: Math.max(currentZoom, 5),
-      duration: 600,
-    });
-  }
 
   function handleToggleMapSource() {
     setMapSource((current) =>
@@ -212,6 +173,7 @@ function App() {
     }
   }
 
+  // Handles clicking battle markers/clusters to select a marker or zoom into a cluster.
   function handleMapClick(event: MapLayerMouseEvent) {
     const clickedFeature = event.features?.[0];
     if (!clickedFeature) return;
@@ -326,9 +288,7 @@ function App() {
           setRadiusPoint(null);
           setSelectedMarker(null);
         }}
-        onRemoveSavedPin={(id) =>
-          setSavedPins((current) => current.filter((pin) => pin.id !== id))
-        }
+        onRemoveSavedPin={handleRemoveSavedPin}
         onSelectSavedPin={handleSelectSavedPin}
       />
     </div>
