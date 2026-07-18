@@ -21,7 +21,7 @@ Starting screen:
 	☐ Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
 
 Searching:
-	☐ Search for a place to create radius
+	✔ Search for a place to create radius
 
 User options:
 	☐ option to toggle clustering
@@ -40,7 +40,6 @@ Mobile:
 Data:
 	☐ get data for asia
 	☐ Investigate data quality
-
 
 Theme:
 	✔ Dark and light mode toggle
