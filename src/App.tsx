@@ -7,8 +7,9 @@ import {
   type MapRef,
   type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
+import * as turf from "@turf/turf";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
@@ -90,17 +91,51 @@ function App() {
   }, [battleMarkers, savedPins]);
 
   // Event handlers
-  function handleEscapeKey(e: KeyboardEvent) {
-    if (e.key === "Escape") {
-      e.preventDefault();
-      setSelectedMarker(null);
-    }
-  }
+  const handleGlobalKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSelectedMarker(null);
+        return;
+      }
+
+      if (event.altKey && event.key === "Enter") {
+        if (!radiusPoint) {
+          return;
+        }
+
+        const map = mapRef.current;
+        if (!map) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
+          steps: 64,
+          units: "kilometers",
+        });
+        const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
+
+        map.fitBounds(
+          [
+            [minLng, minLat],
+            [maxLng, maxLat],
+          ],
+          {
+            padding: 40,
+            duration: 600,
+          },
+        );
+      }
+    },
+    [radiusPoint, radiusSize],
+  );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleEscapeKey);
-    return () => window.removeEventListener("keydown", handleEscapeKey);
-  }, []);
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [handleGlobalKeyDown]);
 
   useEffect(() => {
     saveRadiusSessionState({
