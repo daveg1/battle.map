@@ -295,6 +295,15 @@ function App() {
         onSetRadiusPoint={(point) => {
           setRadiusPoint(point);
           setSelectedMarker(null);
+
+          const map = mapRef.current;
+          if (!map) return;
+
+          map.easeTo({
+            center: [point.lng, point.lat],
+            zoom: 8,
+            duration: 600,
+          });
         }}
         onClear={() => {
           setRadiusPoint(null);

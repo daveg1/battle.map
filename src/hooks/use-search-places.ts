@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import type { SearchResultItem } from "../types/api";
 
 const PLACE_SEARCH_BASE_URL = "https://nominatim.openstreetmap.org/search";
@@ -18,7 +19,7 @@ function isInEurope(lat: number, lng: number) {
 }
 
 export function useSearchPlaces() {
-  async function searchPlaces(query: string) {
+  const searchPlaces = useCallback(async (query: string) => {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {
       return [];
@@ -41,7 +42,7 @@ export function useSearchPlaces() {
       const lng = Number.parseFloat(result.lon);
       return Number.isFinite(lat) && Number.isFinite(lng) && isInEurope(lat, lng);
     });
-  }
+  }, []);
 
   return [searchPlaces] as const;
 }
