@@ -24,7 +24,6 @@ export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
     }
 
     onSetRadiusPoint({ lat, lng });
-    setQuery(result.display_name || result.name || query);
     setSelectionError(null);
   }
 
