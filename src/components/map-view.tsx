@@ -17,6 +17,7 @@ import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
 import { MapRadiusBlip } from "./map-radius-blip";
+import { SettingsControl } from "./settings-control";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
@@ -127,6 +128,7 @@ export function MapView({
       <GeolocateControl position="top-right" />
       <NavigationControl position="top-right" />
       <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
+      <SettingsControl />
       <FitRadiusControl onFit={onFitRadiusToScreen} disabled={!radiusPoint} />
       <ScaleControl />
       <AttributionControl compact={true} />

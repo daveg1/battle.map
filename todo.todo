@@ -25,6 +25,7 @@ Searching:
 	✔ Search for a place to create radius
 
 User options:
+	✔ add settings custom control
 	☐ option to toggle clustering
 	☐ option to always show all pins
 	Pins outside the radius get opacity 50%
