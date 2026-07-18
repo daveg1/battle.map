@@ -239,6 +239,10 @@ function App() {
       });
     };
     markerImage.src = "/battlepin.png";
+
+    if (radiusPoint) {
+      requestAnimationFrame(fitRadiusToScreen);
+    }
   }
 
   function handleMapClick(event: MapLayerMouseEvent) {
