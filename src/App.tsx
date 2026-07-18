@@ -120,6 +120,10 @@ function App() {
     );
   }, [radiusPoint, radiusSize]);
 
+  // TODO: create some kind of keyboard shortcut handler here so we can register keyboard shortcuts and use them via a hook.
+  // TODO: this will also let us see which events have already been set.
+  // TODO: furthermore we can use this registry to quickly print a list of available commands:
+  // `key+combo` <name> - <description>
   const handleGlobalKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
