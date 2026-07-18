@@ -7,7 +7,7 @@ import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useMapStore } from "./stores/use-map-store";
 
-function App() {
+export function App() {
   // Map state
   const mapRef = useRef<MapRef | null>(null);
   const {
@@ -81,5 +81,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
