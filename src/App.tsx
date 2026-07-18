@@ -5,26 +5,25 @@ import {
   NavigationControl,
   ScaleControl,
   type MapRef,
-  type MapLayerMouseEvent,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
-import { MapSource, type MapSourceType } from "./components/map-source";
+import { MapSource } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import type { BattleMarkerItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
 import { ControlPanel } from "./components/panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
+import { useMapRuntime } from "./hooks/use-map-runtime";
 import { useMapSession } from "./hooks/use-map-session";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
-  BATTLE_PIN_IMAGE_ID,
   BATTLE_UNCLUSTERED_LAYER_ID,
   MapBattlePins,
 } from "./components/map-battle-pins";
@@ -54,8 +53,6 @@ function App() {
   } = useRadiusState({ mapRef, initialRadiusState, saveRadiusSessionState });
 
   // Actions
-  const [mapSource, setMapSource] = useState<MapSourceType>(initialLayer);
-  const [isZooming, setIsZooming] = useState(false);
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
     setRadiusPoint,
@@ -103,6 +100,23 @@ function App() {
     return markers;
   }, [battleMarkers, savedPins]);
 
+  const {
+    mapSource,
+    isZooming,
+    setIsZooming,
+    handleToggleMapSource,
+    handleMapLoad,
+    handleMapClick,
+  } = useMapRuntime({
+    mapRef,
+    initialLayer,
+    saveLayerSessionState,
+    visibleMarkers,
+    setSelectedMarker,
+    radiusPoint,
+    fitRadiusToScreen,
+  });
+
   // TODO: create some kind of keyboard shortcut handler here so we can register keyboard shortcuts and use them via a hook.
   // TODO: this will also let us see which events have already been set.
   // TODO: furthermore we can use this registry to quickly print a list of available commands:
@@ -130,93 +144,6 @@ function App() {
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
   }, [handleGlobalKeyDown]);
-
-  useEffect(() => {
-    saveLayerSessionState(mapSource);
-  }, [mapSource, saveLayerSessionState]);
-
-  function handleToggleMapSource() {
-    setMapSource((current) =>
-      current === "positron" ? "dark-matter" : "positron",
-    );
-  }
-
-  function handleMapLoad() {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const collapseAttribution = () => {
-      const attribution = map
-        .getContainer()
-        .querySelector(".maplibregl-ctrl-attrib.maplibregl-compact-show");
-      if (attribution) {
-        attribution.classList.remove("maplibregl-compact-show");
-      }
-    };
-    collapseAttribution();
-    requestAnimationFrame(collapseAttribution);
-
-    if (map.hasImage(BATTLE_PIN_IMAGE_ID)) return;
-
-    const markerImage = new Image();
-    markerImage.onload = () => {
-      const loadedMap = mapRef.current;
-      if (!loadedMap || loadedMap.hasImage(BATTLE_PIN_IMAGE_ID)) return;
-      loadedMap.addImage(BATTLE_PIN_IMAGE_ID, markerImage, {
-        pixelRatio: 2,
-      });
-    };
-    markerImage.src = "/battlepin.png";
-
-    if (radiusPoint) {
-      requestAnimationFrame(fitRadiusToScreen);
-    }
-  }
-
-  // Handles clicking battle markers/clusters to select a marker or zoom into a cluster.
-  function handleMapClick(event: MapLayerMouseEvent) {
-    const clickedFeature = event.features?.[0];
-    if (!clickedFeature) return;
-
-    if (clickedFeature.layer.id === BATTLE_UNCLUSTERED_LAYER_ID) {
-      const markerIndex = Number(clickedFeature.properties?.markerIndex);
-      if (Number.isNaN(markerIndex)) return;
-
-      const selected = visibleMarkers[markerIndex];
-      if (selected) {
-        setSelectedMarker(selected);
-
-        const map = mapRef.current;
-        if (map) {
-          map.easeTo({
-            center: [selected.coords.lng, selected.coords.lat],
-            duration: 600,
-          });
-        }
-      }
-      return;
-    }
-
-    if (
-      [BATTLE_CLUSTER_LAYER_ID, BATTLE_CLUSTER_COUNT_LAYER_ID].includes(
-        clickedFeature.layer.id,
-      )
-    ) {
-      const map = event.target as {
-        getZoom?: () => number;
-        easeTo?: (options: { center: [number, number]; zoom: number }) => void;
-      };
-
-      if (!map.getZoom || !map.easeTo) {
-        return;
-      }
-
-      map.easeTo({
-        center: [event.lngLat.lng, event.lngLat.lat],
-        zoom: map.getZoom() + 2,
-      });
-    }
-  }
 
   return (
     <div className={"flex h-full"}>
