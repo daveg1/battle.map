@@ -32,6 +32,7 @@ export function useMapRuntime({
   const initializeMapSource = useMapStore((state) => state.initializeMapSource);
   const toggleMapSource = useMapStore((state) => state.toggleMapSource);
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
+  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
 
   const hasInitializedMapSource = useRef(false);
 
@@ -94,8 +95,15 @@ export function useMapRuntime({
 
   // Handles clicking battle markers/clusters to select a marker or zoom into a cluster.
   function handleMapClick(event: MapLayerMouseEvent) {
+    if (event.originalEvent.altKey) {
+      return;
+    }
+
     const clickedFeature = event.features?.[0];
-    if (!clickedFeature) return;
+    if (!clickedFeature) {
+      clearSelectedMarker();
+      return;
+    }
 
     if (clickedFeature.layer.id === BATTLE_UNCLUSTERED_LAYER_ID) {
       const markerIndex = Number(clickedFeature.properties?.markerIndex);
