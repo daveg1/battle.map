@@ -30,8 +30,7 @@ export function ControlPanel({
     <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden bg-stone-800 p-4 text-white">
       <ControlPanelHeader />
 
-      <ControlPanelSection>
-        <h2 className="text-lg">Search</h2>
+      <ControlPanelSection title="Search">
         <div className="mt-3 flex flex-col gap-4">
           <ControlPanelSearch onSetRadiusPoint={onSetRadiusPoint} />
 
@@ -48,7 +47,7 @@ export function ControlPanel({
         </div>
       </ControlPanelSection>
 
-      <ControlPanelSection className="flex min-h-0 flex-1 flex-col">
+      <ControlPanelSection title="Saved pins" className="flex min-h-0 flex-1 flex-col">
         <ControlPanelSavedPins
           savedPins={savedPins}
           onSelectSavedPin={onSelectSavedPin}
