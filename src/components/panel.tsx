@@ -1,7 +1,7 @@
-import { ControlPanelLogo } from "./control-panel-logo";
-import { ControlPanelSearchArea } from "./control-panel-search-area";
-import { ControlPanelSection } from "./control-panel-section";
-import { ControlPanelSavedPins } from "./control-panel-saved-pins";
+import { ControlPanelLogo } from "./panel-logo";
+import { ControlPanelSearchArea } from "./panel-search-area";
+import { ControlPanelSection } from "./panel-section";
+import { ControlPanelSavedPins } from "./panel-saved-pins";
 import type { Point, SavedPinItem } from "../types/common";
 
 interface Props {

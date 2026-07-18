@@ -14,7 +14,7 @@ import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
 import type { BattleMarkerItem, Point, SavedPinItem } from "./types/common";
 import { MapPopup } from "./components/map-popup";
-import { ControlPanel } from "./components/control-panel";
+import { ControlPanel } from "./components/panel";
 import { MapRadius } from "./components/map-radius";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import { useMapSession } from "./hooks/use-map-session";

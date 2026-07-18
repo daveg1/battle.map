@@ -1,5 +1,5 @@
-import { ControlPanelPlaceSearch } from "./control-panel-place-search";
-import { ControlPanelRadiusForm } from "./control-panel-radius-form";
+import { ControlPanelPlaceSearch } from "./panel-place-search";
+import { ControlPanelRadiusForm } from "./panel-radius-form";
 import type { Point } from "../types/common";
 
 interface Props {
