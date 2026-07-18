@@ -5,8 +5,8 @@ import type { SearchResultItem } from "../types/api";
 
 const PLACE_SEARCH_BASE_URL = "https://nominatim.openstreetmap.org/search";
 const DEFAULT_DEBOUNCE_MS = 300;
-const DEFAULT_MIN_SEARCH_CHARS = 3;
 const DEFAULT_LIMIT = 6;
+export const PLACE_SEARCH_MIN_CHARS = 3;
 const EUROPE_BOUNDS = {
   minLat: 34,
   maxLat: 72,
@@ -45,7 +45,6 @@ async function fetchPlaces(query: string, limit: number) {
 
 interface UsePlaceSearchNewOptions {
   debounceMs?: number;
-  minSearchChars?: number;
   limit?: number;
   enabled?: boolean;
   initialQuery?: string;
@@ -54,7 +53,6 @@ interface UsePlaceSearchNewOptions {
 export function usePlaceSearchNew(options: UsePlaceSearchNewOptions = {}) {
   const {
     debounceMs = DEFAULT_DEBOUNCE_MS,
-    minSearchChars = DEFAULT_MIN_SEARCH_CHARS,
     limit = DEFAULT_LIMIT,
     enabled = true,
     initialQuery = "",
@@ -67,7 +65,7 @@ export function usePlaceSearchNew(options: UsePlaceSearchNewOptions = {}) {
     () => debouncedQuery.trim(),
     [debouncedQuery],
   );
-  const canSearch = enabled && normalizedQuery.length >= minSearchChars;
+  const canSearch = enabled && normalizedQuery.length >= PLACE_SEARCH_MIN_CHARS;
 
   const queryState = useQuery({
     queryKey: ["place-search", normalizedQuery, limit],
@@ -80,7 +78,10 @@ export function usePlaceSearchNew(options: UsePlaceSearchNewOptions = {}) {
   return {
     query,
     setQuery,
+    canSearch,
+    normalizedQuery,
     isLoading: queryState.isPending,
+    isFetching: queryState.isFetching,
     isError: queryState.isError,
     isSuccess: queryState.isSuccess,
     error: queryState.error,

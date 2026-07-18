@@ -6,11 +6,11 @@ import {
   type FocusEvent,
   type KeyboardEvent,
 } from "react";
+import { PLACE_SEARCH_MIN_CHARS } from "../hooks/use-place-search-new";
 import type { SearchResultItem } from "../types/api";
 
 interface Props {
   query: string;
-  minSearchChars: number;
   isSearching: boolean;
   results: SearchResultItem[];
   onQueryChange(query: string): void;
@@ -20,7 +20,6 @@ interface Props {
 
 export function PanelDropdown({
   query,
-  minSearchChars,
   isSearching,
   results,
   onQueryChange,
@@ -90,9 +89,9 @@ export function PanelDropdown({
       />
       {isOpen && query.trim() && (
         <div className="absolute z-20 mt-1 max-h-60 w-full overflow-y-auto rounded border border-stone-700 bg-stone-800 shadow-lg">
-          {query.trim().length < minSearchChars && (
+          {query.trim().length < PLACE_SEARCH_MIN_CHARS && (
             <p className="px-2 py-2 text-sm text-stone-300">
-              Type at least {minSearchChars} characters to search.
+              Type at least {PLACE_SEARCH_MIN_CHARS} characters to search.
             </p>
           )}
 
@@ -101,7 +100,7 @@ export function PanelDropdown({
           )}
 
           {!isSearching &&
-            query.trim().length >= minSearchChars &&
+            query.trim().length >= PLACE_SEARCH_MIN_CHARS &&
             results.length === 0 && (
               <p className="px-2 py-2 text-sm text-stone-300">
                 No matching places found in Europe.
