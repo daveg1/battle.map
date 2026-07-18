@@ -10,6 +10,7 @@ import {
 import * as turf from "@turf/turf";
 import { useScreenSize } from "./hooks/use-screen-size";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource, type MapSourceType } from "./components/map-source";
 import { useFetchBattles } from "./hooks/use-fetch-battles";
@@ -91,6 +92,34 @@ function App() {
   }, [battleMarkers, savedPins]);
 
   // Event handlers
+  const fitRadiusToScreen = useCallback(() => {
+    if (!radiusPoint) {
+      return;
+    }
+
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
+      steps: 64,
+      units: "kilometers",
+    });
+    const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
+
+    map.fitBounds(
+      [
+        [minLng, minLat],
+        [maxLng, maxLat],
+      ],
+      {
+        padding: 40,
+        duration: 600,
+      },
+    );
+  }, [radiusPoint, radiusSize]);
+
   const handleGlobalKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -100,36 +129,13 @@ function App() {
       }
 
       if (event.altKey && event.key === "Enter") {
-        if (!radiusPoint) {
-          return;
-        }
-
-        const map = mapRef.current;
-        if (!map) {
-          return;
-        }
+        if (!radiusPoint) return;
 
         event.preventDefault();
-
-        const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
-          steps: 64,
-          units: "kilometers",
-        });
-        const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
-
-        map.fitBounds(
-          [
-            [minLng, minLat],
-            [maxLng, maxLat],
-          ],
-          {
-            padding: 40,
-            duration: 600,
-          },
-        );
+        fitRadiusToScreen();
       }
     },
-    [radiusPoint, radiusSize],
+    [fitRadiusToScreen, radiusPoint],
   );
 
   useEffect(() => {
@@ -301,6 +307,7 @@ function App() {
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
         <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
+        <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radiusPoint} />
         <ScaleControl />
         <AttributionControl compact={true} />
 
