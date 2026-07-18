@@ -16,6 +16,7 @@ import { MapLayerControl } from "./map-layer-control";
 import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
+import { MapRadiusBlip } from "./map-radius-blip";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
@@ -131,6 +132,7 @@ export function MapView({
       <AttributionControl compact={true} />
 
       {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
+      <MapRadiusBlip point={radiusPoint} />
 
       <MapBattlePins
         markers={visibleMarkers}
