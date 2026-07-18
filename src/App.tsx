@@ -7,7 +7,7 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FitRadiusControl } from "./components/fit-radius-control";
 import { MapLayerControl } from "./components/map-layer-control";
 import { MapSource } from "./components/map-source";
@@ -19,6 +19,7 @@ import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import { useBattleMarkers } from "./hooks/use-battle-markers";
 import { useMapRuntime } from "./hooks/use-map-runtime";
 import { useMapSession } from "./hooks/use-map-session";
+import { useMapShortcuts } from "./hooks/use-map-shortcuts";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import {
@@ -99,33 +100,11 @@ function App() {
     fitRadiusToScreen,
   });
 
-  // TODO: create some kind of keyboard shortcut handler here so we can register keyboard shortcuts and use them via a hook.
-  // TODO: this will also let us see which events have already been set.
-  // TODO: furthermore we can use this registry to quickly print a list of available commands:
-  // `key+combo` <name> - <description>
-  // Handles global keyboard shortcuts (Escape to close popup, Alt+Enter to fit radius).
-  const handleGlobalKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setSelectedMarker(null);
-        return;
-      }
-
-      if (event.altKey && event.key === "Enter") {
-        if (!radiusPoint) return;
-
-        event.preventDefault();
-        fitRadiusToScreen();
-      }
-    },
-    [fitRadiusToScreen, radiusPoint],
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleGlobalKeyDown);
-    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [handleGlobalKeyDown]);
+  useMapShortcuts({
+    hasRadius: Boolean(radiusPoint),
+    onEscape: () => setSelectedMarker(null),
+    onFitRadius: fitRadiusToScreen,
+  });
 
   return (
     <div className={"flex h-full"}>
