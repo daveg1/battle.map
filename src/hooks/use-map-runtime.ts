@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
 import {
@@ -9,6 +9,7 @@ import {
 } from "../components/map-battle-pins";
 import type { MapSourceType } from "../components/map-source";
 import type { BattleMarkerItem, Point } from "../types/common";
+import { useMapStore } from "../stores/use-map-store";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -29,18 +30,32 @@ export function useMapRuntime({
   radiusPoint,
   fitRadiusToScreen,
 }: Props) {
-  const [mapSource, setMapSource] = useState<MapSourceType>(initialLayer);
+  const hasInitializedMapSource = useRef(false);
+  const mapSource = useMapStore((state) => state.mapSource);
+  const initializeMapSource = useMapStore((state) => state.initializeMapSource);
+  const toggleMapSource = useMapStore((state) => state.toggleMapSource);
   const [isZooming, setIsZooming] = useState(false);
 
   useEffect(() => {
+    if (!hasInitializedMapSource.current) {
+      return;
+    }
+
     saveLayerSessionState(mapSource);
   }, [mapSource, saveLayerSessionState]);
 
+  useEffect(() => {
+    if (hasInitializedMapSource.current) {
+      return;
+    }
+
+    initializeMapSource(initialLayer);
+    hasInitializedMapSource.current = true;
+  }, [initialLayer, initializeMapSource]);
+
   // Toggles the basemap between light and dark variants.
   function handleToggleMapSource() {
-    setMapSource((current) =>
-      current === "positron" ? "dark-matter" : "positron",
-    );
+    toggleMapSource();
   }
 
   // Performs one-time map setup (attribution behavior, marker icon load, and initial radius fit).

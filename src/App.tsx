@@ -1,8 +1,7 @@
 import { type MapRef } from "react-map-gl/maplibre";
 import { useScreenSize } from "./hooks/use-screen-size";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { MapView } from "./components/map-view";
-import type { BattleMarkerItem } from "./types/common";
 import { ControlPanel } from "./components/panel";
 import { useAltDragRadius } from "./hooks/use-alt-drag-radius";
 import { useBattleMarkers } from "./hooks/use-battle-markers";
@@ -11,6 +10,7 @@ import { useMapSession } from "./hooks/use-map-session";
 import { useMapShortcuts } from "./hooks/use-map-shortcuts";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
+import { useMapStore } from "./stores/use-map-store";
 
 function App() {
   // Map state
@@ -44,8 +44,10 @@ function App() {
   });
 
   // Battles
-  const [selectedMarker, setSelectedMarker] = useState<BattleMarkerItem | null>(
-    null,
+  const selectedMarker = useMapStore((state) => state.selectedMarker);
+  const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
+  const clearSelectedMarker = useMapStore(
+    (state) => state.clearSelectedMarker,
   );
 
   const {
@@ -57,7 +59,6 @@ function App() {
     mapRef,
     initialSavedPins,
     saveSavedPinsSessionState,
-    setSelectedMarker,
   });
 
   const [visibleMarkers] = useBattleMarkers({
@@ -85,7 +86,7 @@ function App() {
 
   useMapShortcuts({
     hasRadius: Boolean(radiusPoint),
-    onEscape: () => setSelectedMarker(null),
+    onEscape: clearSelectedMarker,
     onFitRadius: fitRadiusToScreen,
   });
 
@@ -113,7 +114,7 @@ function App() {
         onToggleMapSource={handleToggleMapSource}
         onFitRadius={fitRadiusToScreen}
         onToggleSave={handleToggleSavedPin}
-        onClosePopup={() => setSelectedMarker(null)}
+        onClosePopup={clearSelectedMarker}
       />
 
       <ControlPanel
@@ -123,7 +124,7 @@ function App() {
         onSearch={setRadiusSize}
         onSetRadiusPoint={(point) => {
           setRadiusPoint(point);
-          setSelectedMarker(null);
+          clearSelectedMarker();
 
           const map = mapRef.current;
           if (!map) return;
@@ -136,7 +137,7 @@ function App() {
         }}
         onClear={() => {
           setRadiusPoint(null);
-          setSelectedMarker(null);
+          clearSelectedMarker();
         }}
         onRemoveSavedPin={handleRemoveSavedPin}
         onSelectSavedPin={handleSelectSavedPin}

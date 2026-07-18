@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import type { Dispatch, RefObject, SetStateAction } from "react";
+import { useEffect, useRef } from "react";
+import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { BattleMarkerItem, SavedPinItem } from "../types/common";
+import { useMapStore } from "../stores/use-map-store";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
   initialSavedPins: SavedPinItem[];
   saveSavedPinsSessionState(savedPins: SavedPinItem[]): void;
-  setSelectedMarker: Dispatch<SetStateAction<BattleMarkerItem | null>>;
 }
 
 function createSavedPin(marker: BattleMarkerItem): SavedPinItem {
@@ -27,15 +27,29 @@ export function useSavedPinsState({
   mapRef,
   initialSavedPins,
   saveSavedPinsSessionState,
-  setSelectedMarker,
 }: Props) {
-  const [savedPins, setSavedPins] = useState<SavedPinItem[]>(
-    initialSavedPins.filter((pin) => pin.battles?.length),
-  );
+  const hasInitializedSavedPins = useRef(false);
+  const savedPins = useMapStore((state) => state.savedPins);
+  const setSavedPins = useMapStore((state) => state.setSavedPins);
+  const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
+  const initializeSavedPins = useMapStore((state) => state.initializeSavedPins);
 
   useEffect(() => {
+    if (!hasInitializedSavedPins.current) {
+      return;
+    }
+
     saveSavedPinsSessionState(savedPins);
   }, [saveSavedPinsSessionState, savedPins]);
+
+  useEffect(() => {
+    if (hasInitializedSavedPins.current) {
+      return;
+    }
+
+    initializeSavedPins(initialSavedPins.filter((pin) => pin.battles?.length));
+    hasInitializedSavedPins.current = true;
+  }, [initialSavedPins, initializeSavedPins]);
 
   // Adds/removes a marker from saved pins whilst preserving order
   function handleToggleSavedPin(marker: BattleMarkerItem) {
@@ -77,7 +91,6 @@ export function useSavedPinsState({
 
   return {
     savedPins,
-    setSavedPins,
     handleToggleSavedPin,
     handleRemoveSavedPin,
     handleSelectSavedPin,

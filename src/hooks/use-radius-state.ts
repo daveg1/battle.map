@@ -1,9 +1,9 @@
 import * as turf from "@turf/turf";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { SessionRadiusState } from "../session/map-session";
-import type { Point } from "../types/common";
+import { useMapStore } from "../stores/use-map-store";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -16,10 +16,25 @@ export function useRadiusState({
   initialRadiusState,
   saveRadiusSessionState,
 }: Props) {
-  const [radiusPoint, setRadiusPoint] = useState<Point | null>(
-    initialRadiusState.point,
+  const hasInitializedRadius = useRef(false);
+  const radiusPoint = useMapStore((state) => state.radiusPoint);
+  const radiusSize = useMapStore((state) => state.radiusSize);
+  const setRadiusPoint = useMapStore((state) => state.setRadiusPoint);
+  const setRadiusSize = useMapStore((state) => state.setRadiusSize);
+  const initializeRadiusState = useMapStore(
+    (state) => state.initializeRadiusState,
   );
-  const [radiusSize, setRadiusSize] = useState<number>(initialRadiusState.size);
+
+  useEffect(() => {
+    if (!hasInitializedRadius.current) {
+      return;
+    }
+
+    saveRadiusSessionState({
+      point: radiusPoint,
+      size: radiusSize,
+    });
+  }, [radiusPoint, radiusSize, saveRadiusSessionState]);
 
   const fitRadiusToScreen = useCallback(() => {
     if (!radiusPoint) {
@@ -50,11 +65,13 @@ export function useRadiusState({
   }, [mapRef, radiusPoint, radiusSize]);
 
   useEffect(() => {
-    saveRadiusSessionState({
-      point: radiusPoint,
-      size: radiusSize,
-    });
-  }, [radiusPoint, radiusSize, saveRadiusSessionState]);
+    if (hasInitializedRadius.current) {
+      return;
+    }
+
+    initializeRadiusState(initialRadiusState);
+    hasInitializedRadius.current = true;
+  }, [initialRadiusState, initializeRadiusState]);
 
   return {
     radiusPoint,
