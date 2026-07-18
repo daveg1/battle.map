@@ -16,7 +16,7 @@ Timeline:
 Map:
 	☐ have min and max zoom (add user option to toggle this off)
 	☐ fade icons when zoomed out enough
-	☐ add haptic feedback when placing radius
+	✔ add haptic feedback when placing radius
 
 Starting screen:
 	☐ Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
