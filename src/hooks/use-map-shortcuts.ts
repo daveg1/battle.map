@@ -1,52 +1,50 @@
-import { useCallback, useEffect } from "react";
-import { useMapStore } from "../stores/use-map-store";
+import { useEffect, useMemo } from "react";
 
-interface Props {
-  hasRadius: boolean;
-  onFitRadius(): void;
-  onClearRadius(): void;
+interface Shortcut {
+  key: string;
+  alias?: string[];
+  altKey?: boolean;
+  onPress(): void;
+  enabled?: boolean;
 }
 
-// TODO: refactor to allow registering shortcuts
-export function useMapShortcuts({
-  hasRadius,
-  onFitRadius,
-  onClearRadius,
-}: Props) {
-  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+interface Props {
+  shortcuts: Shortcut[];
+}
 
-  // Handles global keyboard shortcuts (Escape to close popup, Alt+Enter to fit radius, Alt+C to clear radius).
-  const handleGlobalKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        clearSelectedMarker();
-        return;
-      }
-
-      if (event.altKey && event.key === "Enter") {
-        if (!hasRadius) return;
-
-        event.preventDefault();
-        onFitRadius();
-        return;
-      }
-
-      if (
-        event.altKey &&
-        ["c", "backspace"].includes(event.key.toLowerCase())
-      ) {
-        if (!hasRadius) return;
-
-        event.preventDefault();
-        onClearRadius();
-      }
-    },
-    [clearSelectedMarker, hasRadius, onClearRadius, onFitRadius],
+// Registers Alt-based keyboard shortcuts.
+export function useMapShortcuts({ shortcuts }: Props) {
+  const activeShortcuts = useMemo(
+    () => shortcuts.filter((shortcut) => shortcut.enabled !== false),
+    [shortcuts],
   );
 
   useEffect(() => {
+    function handleGlobalKeyDown(event: KeyboardEvent) {
+      const shortcut = activeShortcuts.find(
+        (entry) =>
+          [entry.key, ...(entry.alias ?? [])].some(
+            (candidate) => candidate.toLowerCase() === event.key.toLowerCase(),
+          ),
+      );
+
+      if (!shortcut) {
+        return;
+      }
+
+      if (shortcut.altKey === true && !event.altKey) {
+        return;
+      }
+
+      if (shortcut.altKey !== true && event.altKey) {
+        return;
+      }
+
+      event.preventDefault();
+      shortcut.onPress();
+    }
+
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, [handleGlobalKeyDown]);
+  }, [activeShortcuts]);
 }

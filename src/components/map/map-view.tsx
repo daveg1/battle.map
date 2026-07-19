@@ -123,9 +123,25 @@ export function MapView({
   });
 
   useMapShortcuts({
-    hasRadius: Boolean(radius.point),
-    onFitRadius: fitRadiusToScreen,
-    onClearRadius: handleClearRadius,
+    shortcuts: [
+      {
+        key: "Escape",
+        onPress: clearSelectedMarker,
+      },
+      {
+        key: "Enter",
+        altKey: true,
+        enabled: Boolean(radius.point),
+        onPress: fitRadiusToScreen,
+      },
+      {
+        key: "c",
+        alias: ["Backspace"],
+        altKey: true,
+        enabled: Boolean(radius.point),
+        onPress: handleClearRadius,
+      },
+    ],
   });
 
   return (
