@@ -20,9 +20,8 @@ function createSavedPin(marker: BattleMarkerItem): SavedPinItem {
   };
 }
 
-export function useSavedPinsState({
-  mapRef,
-}: Props) {
+// TODO: can/should this be removed?
+export function useSavedPinsState({ mapRef }: Props) {
   const savedPins = useMapStore((state) => state.savedPins);
   const setSavedPins = useMapStore((state) => state.setSavedPins);
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
