@@ -76,10 +76,14 @@ export function MapView({
       return;
     }
 
-    const circle = turf.circle([radius.point.lng, radius.point.lat], radius.size, {
-      steps: 64,
-      units: "kilometers",
-    });
+    const circle = turf.circle(
+      [radius.point.lng, radius.point.lat],
+      radius.size,
+      {
+        steps: 64,
+        units: "kilometers",
+      },
+    );
     const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
 
     map.fitBounds(
