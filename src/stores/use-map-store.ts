@@ -1,11 +1,10 @@
 import type { Dispatch, SetStateAction } from "react";
 import { create } from "zustand";
-import type { BattleMarkerItem, Point, SavedPinItem } from "../types/common";
+import type { BattleMarkerItem, SavedPinItem } from "../types/common";
 import type { SessionRadiusState } from "../types/viewer-state";
 
 interface MapStoreState {
-  radiusPoint: Point | null;
-  radiusSize: number;
+  radius: SessionRadiusState;
   savedPins: SavedPinItem[];
   selectedMarker: BattleMarkerItem | null;
 }
@@ -13,8 +12,7 @@ interface MapStoreState {
 interface MapStoreActions {
   initializeRadiusState(radius: SessionRadiusState): void;
   initializeSavedPins(savedPins: SavedPinItem[]): void;
-  setRadiusPoint: Dispatch<SetStateAction<Point | null>>;
-  setRadiusSize: Dispatch<SetStateAction<number>>;
+  setRadius: Dispatch<SetStateAction<SessionRadiusState>>;
   setSavedPins: Dispatch<SetStateAction<SavedPinItem[]>>;
   setSelectedMarker: Dispatch<SetStateAction<BattleMarkerItem | null>>;
   clearSelectedMarker(): void;
@@ -23,28 +21,24 @@ interface MapStoreActions {
 type MapStore = MapStoreState & MapStoreActions;
 
 export const useMapStore = create<MapStore>((set) => ({
-  radiusPoint: null,
-  radiusSize: 100,
+  radius: {
+    point: null,
+    size: 100,
+  },
   savedPins: [],
   selectedMarker: null,
   initializeRadiusState: (radius) =>
     set({
-      radiusPoint: radius.point,
-      radiusSize: radius.size,
+      radius,
     }),
   initializeSavedPins: (savedPins) => set({ savedPins }),
-  setRadiusPoint: (next) =>
+  setRadius: (next) =>
     set((state) => ({
-      radiusPoint:
+      radius:
         typeof next === "function"
-          ? (next as (prev: Point | null) => Point | null)(state.radiusPoint)
-          : next,
-    })),
-  setRadiusSize: (next) =>
-    set((state) => ({
-      radiusSize:
-        typeof next === "function"
-          ? (next as (prev: number) => number)(state.radiusSize)
+          ? (next as (prev: SessionRadiusState) => SessionRadiusState)(
+              state.radius,
+            )
           : next,
     })),
   setSavedPins: (next) =>

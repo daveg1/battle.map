@@ -61,18 +61,17 @@ export function MapView({
 }: Props) {
   const { width, height } = useScreenSize();
 
-  const radiusPoint = useMapStore((state) => state.radiusPoint);
-  const radiusSize = useMapStore((state) => state.radiusSize);
-  const setRadiusPoint = useMapStore((state) => state.setRadiusPoint);
-  const setRadiusSize = useMapStore((state) => state.setRadiusSize);
+  const radius = useMapStore((state) => state.radius);
+  const setRadius = useMapStore((state) => state.setRadius);
   const savedPins = useMapStore((state) => state.savedPins);
   const selectedMarker = useMapStore((state) => state.selectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const radiusPoint = radius.point;
+  const radiusSize = radius.size;
 
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
-    setRadiusPoint,
-    setRadiusSize,
+    setRadius,
   });
 
   const [visibleMarkers] = useBattleMarkers({

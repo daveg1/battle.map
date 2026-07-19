@@ -30,10 +30,12 @@ export function App() {
 
   // Radius
   const {
-    radiusPoint,
+    radius,
     radiusSize,
+    hasRadius,
     setRadiusPoint,
     setRadiusSize,
+    clearRadius,
     fitRadiusToScreen,
   } = useRadiusState({
     mapRef,
@@ -65,11 +67,8 @@ export function App() {
   );
 
   useEffect(() => {
-    updateRadiusInUrl({
-      point: radiusPoint,
-      size: radiusSize,
-    });
-  }, [radiusPoint, radiusSize, updateRadiusInUrl]);
+    updateRadiusInUrl(radius);
+  }, [radius, updateRadiusInUrl]);
 
   return (
     <div className="flex h-full">
@@ -85,7 +84,7 @@ export function App() {
 
       <ControlPanel
         radius={radiusSize}
-        hasRadius={Boolean(radiusPoint)}
+        hasRadius={hasRadius}
         savedPins={savedPins}
         onSearch={setRadiusSize}
         onSetRadiusPoint={(point) => {
@@ -102,7 +101,7 @@ export function App() {
           });
         }}
         onClear={() => {
-          setRadiusPoint(null);
+          clearRadius();
           useMapStore.getState().clearSelectedMarker();
         }}
         onRemoveSavedPin={handleRemoveSavedPin}

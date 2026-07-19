@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
-import type { Point } from "../types/common";
+import type { SessionRadiusState } from "../types/viewer-state";
 
 const RADIUS_MIN_KM = 1;
 const RADIUS_MAX_KM = 1000;
@@ -14,14 +14,12 @@ const ZOOM_SCALE_SPAN = 4;
 
 interface Props {
   radiusSize: number;
-  setRadiusPoint: Dispatch<SetStateAction<Point | null>>;
-  setRadiusSize: Dispatch<SetStateAction<number>>;
+  setRadius: Dispatch<SetStateAction<SessionRadiusState>>;
 }
 
 export function useAltDragRadius({
   radiusSize,
-  setRadiusPoint,
-  setRadiusSize,
+  setRadius,
 }: Props) {
   const [isAltPressed, setIsAltPressed] = useState(false);
   const radiusDragState = useRef({
@@ -53,11 +51,14 @@ export function useAltDragRadius({
         ),
       );
 
-      setRadiusSize((current) => {
-        if (current === nextRadius) {
+      setRadius((current) => {
+        if (current.size === nextRadius) {
           return current;
         }
-        return nextRadius;
+        return {
+          ...current,
+          size: nextRadius,
+        };
       });
     }
 
@@ -96,13 +97,16 @@ export function useAltDragRadius({
       window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("blur", handleWindowBlur);
     };
-  }, [setRadiusSize]);
+  }, [setRadius]);
 
   function handleMapMouseDown(event: MapLayerMouseEvent) {
     if (!event.originalEvent.altKey) return;
 
     event.preventDefault();
-    setRadiusPoint(event.lngLat);
+    setRadius((current) => ({
+      ...current,
+      point: event.lngLat,
+    }));
     radiusDragState.current = {
       isPointerDown: true,
       startClientX: event.originalEvent.clientX,
