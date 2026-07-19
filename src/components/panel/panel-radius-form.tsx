@@ -1,5 +1,5 @@
 import type { ChangeEvent } from "react";
-import { useMapStore } from "../stores/use-map-store";
+import { useMapStore } from "../../stores/use-map-store";
 
 export function ControlPanelRadiusForm() {
   const radius = useMapStore((state) => state.radius);

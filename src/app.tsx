@@ -1,7 +1,7 @@
 import { type MapRef } from "react-map-gl/maplibre";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { MapView } from "./components/map-view";
-import { ControlPanel } from "./components/panel";
+import { MapView } from "./components/map/map-view";
+import { ControlPanel } from "./components/panel/panel";
 import { useMapSession } from "./hooks/use-map-session";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useViewerUrlParams } from "./hooks/use-viewer-url-params";

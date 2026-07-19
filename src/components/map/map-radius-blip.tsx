@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Layer, Source } from "react-map-gl/maplibre";
-import type { Point } from "../types/common";
+import type { Point } from "../../types/common";
 
 const BLIP_DURATION_MS = 800;
 const BLIP_MIN_RADIUS = 8;

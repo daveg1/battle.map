@@ -1,5 +1,5 @@
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import type { SavedPinItem } from "../types/common";
+import type { SavedPinItem } from "../../types/common";
 
 interface Props {
   savedPins: SavedPinItem[];

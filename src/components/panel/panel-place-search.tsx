@@ -1,9 +1,9 @@
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { useState, type FormEvent } from "react";
-import { usePlaceSearch } from "../hooks/use-place-search";
-import type { SearchResultItem } from "../types/api";
-import { useMapStore } from "../stores/use-map-store";
+import { usePlaceSearch } from "../../hooks/use-place-search";
+import type { SearchResultItem } from "../../types/api";
+import { useMapStore } from "../../stores/use-map-store";
 import { PanelSearchResults } from "./panel-search-results";
 
 interface Props {

@@ -6,8 +6,8 @@ import {
   BATTLE_CLUSTER_LAYER_ID,
   BATTLE_PIN_IMAGE_ID,
   BATTLE_UNCLUSTERED_LAYER_ID,
-} from "../components/map-battle-pins";
-import type { MapSourceType } from "../components/map-source";
+} from "../components/map/map-battle-pins";
+import type { MapSourceType } from "../components/map/map-source";
 import type { BattleMarkerItem } from "../types/common";
 import type { SessionRadiusState } from "../types/viewer-state";
 import { useMapStore } from "../stores/use-map-store";

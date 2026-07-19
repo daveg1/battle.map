@@ -1,6 +1,6 @@
 import { Layer, Source } from "react-map-gl/maplibre";
 import type { FeatureCollection, Point as GeoJsonPoint } from "geojson";
-import type { BattleMarkerItem } from "../types/common";
+import type { BattleMarkerItem } from "../../types/common";
 
 export const BATTLE_SOURCE_ID = "battle-points";
 export const BATTLE_CLUSTER_LAYER_ID = "battle-clusters";

@@ -1,5 +1,5 @@
 import { Layer, Source } from "react-map-gl/maplibre";
-import type { Point } from "../types/common";
+import type { Point } from "../../types/common";
 import * as turf from "@turf/turf";
 
 interface Props {

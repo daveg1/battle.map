@@ -2,15 +2,15 @@ import clsx from "clsx";
 import { MoonIcon, SunIcon } from "@heroicons/react/16/solid";
 import { useRef } from "react";
 import { useControl } from "react-map-gl/maplibre";
-import type { MapSourceType } from "./map-source";
-import { ControlPortal, CustomControl } from "./custom-control";
+import type { MapSourceType } from "../map/map-source";
+import { ControlPortal, CustomControl } from "./control-base";
 
 interface Props {
   source: MapSourceType;
   onToggle: () => void;
 }
 
-export function MapLayerControl({ source, onToggle }: Props) {
+export function ThemeControl({ source, onToggle }: Props) {
   const controlRef = useRef<CustomControl | null>(null);
   const control = useControl<CustomControl>(
     () => {

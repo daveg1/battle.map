@@ -1,7 +1,7 @@
 import { ArrowsPointingOutIcon } from "@heroicons/react/24/outline";
 import { useRef } from "react";
 import { useControl } from "react-map-gl/maplibre";
-import { ControlPortal, CustomControl } from "./custom-control";
+import { ControlPortal, CustomControl } from "./control-base";
 
 interface Props {
   disabled: boolean;

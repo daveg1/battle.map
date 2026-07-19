@@ -4,7 +4,7 @@ import { ControlPanelLogo } from "./panel-logo";
 import { ControlPanelSearchArea } from "./panel-search-area";
 import { ControlPanelSection } from "./panel-section";
 import { ControlPanelSavedPins } from "./panel-saved-pins";
-import type { SavedPinItem } from "../types/common";
+import type { SavedPinItem } from "../../types/common";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;

@@ -2,8 +2,8 @@ import { Cog6ToothIcon, MoonIcon, SunIcon } from "@heroicons/react/16/solid";
 import { DropdownMenu } from "radix-ui";
 import { useRef } from "react";
 import { useControl } from "react-map-gl/maplibre";
-import type { SessionMapLayer } from "../types/viewer-state";
-import { ControlPortal, CustomControl } from "./custom-control";
+import type { SessionMapLayer } from "../../types/viewer-state";
+import { ControlPortal, CustomControl } from "./control-base";
 
 interface Props {
   mapSource: SessionMapLayer;

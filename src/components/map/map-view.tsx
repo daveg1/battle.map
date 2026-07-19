@@ -8,26 +8,26 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useCallback, type RefObject } from "react";
-import { useAltDragRadius } from "../hooks/use-alt-drag-radius";
-import { useBattleMarkers } from "../hooks/use-battle-markers";
-import { useMapRuntime } from "../hooks/use-map-runtime";
-import { useMapShortcuts } from "../hooks/use-map-shortcuts";
-import { FitRadiusControl } from "./fit-radius-control";
+import { useAltDragRadius } from "../../hooks/use-alt-drag-radius";
+import { useBattleMarkers } from "../../hooks/use-battle-markers";
+import { useMapRuntime } from "../../hooks/use-map-runtime";
+import { useMapShortcuts } from "../../hooks/use-map-shortcuts";
+import { FitRadiusControl } from "../control/control-fit-radius";
 import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
 import { MapRadiusBlip } from "./map-radius-blip";
-import { SettingsControl } from "./settings-control";
+import { SettingsControl } from "../control/control-settings";
 import {
   BATTLE_CLUSTER_COUNT_LAYER_ID,
   BATTLE_CLUSTER_LAYER_ID,
   BATTLE_UNCLUSTERED_LAYER_ID,
   MapBattlePins,
 } from "./map-battle-pins";
-import type { BattleMarkerItem } from "../types/common";
-import { useMapStore } from "../stores/use-map-store";
-import type { SessionMapLayer } from "../types/viewer-state";
-import { useScreenSize } from "../hooks/use-screen-size";
+import type { BattleMarkerItem } from "../../types/common";
+import { useMapStore } from "../../stores/use-map-store";
+import type { SessionMapLayer } from "../../types/viewer-state";
+import { useScreenSize } from "../../hooks/use-screen-size";
 
 interface MoveEndEvent {
   viewState: {

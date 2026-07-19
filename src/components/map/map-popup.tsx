@@ -1,5 +1,5 @@
 import { Popup } from "react-map-gl/maplibre";
-import type { BattleMarkerItem } from "../types/common";
+import type { BattleMarkerItem } from "../../types/common";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
