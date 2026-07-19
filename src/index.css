@@ -71,6 +71,28 @@
     }
   }
 
+  @keyframes splash-fade-in {
+    from {
+      opacity: 0;
+      transform: scale(1.01);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes splash-fade-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.99);
+    }
+  }
+
   .arrow-1 {
     @apply will-change-transform;
     animation-name: arrow-1;
@@ -98,5 +120,13 @@
       var(--anim-arrow-delay) + var(--anim-arrow-time) - calc(var(--anim-arrow-delta) * 3)
     );
     animation-fill-mode: both;
+  }
+
+  .splash-fade-in {
+    animation: splash-fade-in 250ms var(--ease-out) both;
+  }
+
+  .splash-fade-out {
+    animation: splash-fade-out 250ms var(--ease-in) both;
   }
 }
