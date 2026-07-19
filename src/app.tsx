@@ -2,7 +2,6 @@ import { type MapRef } from "react-map-gl/maplibre";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MapView } from "./components/map/map-view";
 import { ControlPanel } from "./components/panel/panel";
-import { useMapSession } from "./hooks/use-map-session";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useViewerUrlParams } from "./hooks/use-viewer-url-params";
 import { DEFAULT_MAP_VIEW } from "./types/viewer-state";
@@ -12,12 +11,6 @@ import { readMapViewFromUrl } from "./utils/viewer-url-state";
 export function App() {
   // Map state
   const mapRef = useRef<MapRef | null>(null);
-  const {
-    initialSavedPins,
-    initialLayer,
-    saveSavedPinsSessionState,
-    saveLayerSessionState,
-  } = useMapSession();
   const { updateMapViewInUrl, updateRadiusInUrl } = useViewerUrlParams();
   const initialMapViewState = useMemo(
     () => readMapViewFromUrl() ?? DEFAULT_MAP_VIEW,
@@ -31,11 +24,7 @@ export function App() {
     handleToggleSavedPin,
     handleRemoveSavedPin,
     handleSelectSavedPin,
-  } = useSavedPinsState({
-    mapRef,
-    initialSavedPins,
-    saveSavedPinsSessionState,
-  });
+  } = useSavedPinsState({ mapRef });
 
   const handleMapMoveEnd = useCallback(
     (event: {
@@ -59,8 +48,6 @@ export function App() {
       <MapView
         mapRef={mapRef}
         initialMapViewState={initialMapViewState}
-        initialLayer={initialLayer}
-        saveLayerSessionState={saveLayerSessionState}
         onMoveEnd={handleMapMoveEnd}
         onToggleSave={handleToggleSavedPin}
       />

@@ -26,7 +26,6 @@ import {
 } from "./map-battle-pins";
 import type { BattleMarkerItem } from "../../types/common";
 import { useMapStore } from "../../stores/use-map-store";
-import type { SessionMapLayer } from "../../types/viewer-state";
 import { useScreenSize } from "../../hooks/use-screen-size";
 
 interface MoveEndEvent {
@@ -44,8 +43,6 @@ interface Props {
     latitude: number;
     zoom: number;
   };
-  initialLayer: SessionMapLayer;
-  saveLayerSessionState(layer: SessionMapLayer): void;
   onMoveEnd(event: MoveEndEvent): void;
   onToggleSave(marker: BattleMarkerItem): void;
 }
@@ -53,8 +50,6 @@ interface Props {
 export function MapView({
   mapRef,
   initialMapViewState,
-  initialLayer,
-  saveLayerSessionState,
   onMoveEnd,
   onToggleSave,
 }: Props) {
@@ -114,8 +109,6 @@ export function MapView({
     handleMapClick,
   } = useMapRuntime({
     mapRef,
-    initialLayer,
-    saveLayerSessionState,
     visibleMarkers,
     radius,
     fitRadiusToScreen,

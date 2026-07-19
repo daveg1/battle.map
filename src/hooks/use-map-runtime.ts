@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { RefObject } from "react";
 import type { MapLayerMouseEvent, MapRef } from "react-map-gl/maplibre";
 import {
@@ -7,7 +7,6 @@ import {
   BATTLE_PIN_IMAGE_ID,
   BATTLE_UNCLUSTERED_LAYER_ID,
 } from "../components/map/map-battle-pins";
-import type { MapSourceType } from "../components/map/map-source";
 import type { BattleMarkerItem } from "../types/common";
 import type { SessionRadiusState } from "../types/viewer-state";
 import { useMapStore } from "../stores/use-map-store";
@@ -15,8 +14,6 @@ import { useUserSettingsStore } from "../stores/use-user-settings-store";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
-  initialLayer: MapSourceType;
-  saveLayerSessionState(layer: MapSourceType): void;
   visibleMarkers: BattleMarkerItem[];
   radius: SessionRadiusState;
   fitRadiusToScreen(): void;
@@ -24,8 +21,6 @@ interface Props {
 
 export function useMapRuntime({
   mapRef,
-  initialLayer,
-  saveLayerSessionState,
   visibleMarkers,
   radius,
   fitRadiusToScreen,
@@ -33,33 +28,11 @@ export function useMapRuntime({
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
   const mapSource = useUserSettingsStore((state) => state.mapSource);
-  const initializeMapSource = useUserSettingsStore(
-    (state) => state.initializeMapSource,
-  );
   const toggleMapSource = useUserSettingsStore(
     (state) => state.toggleMapSource,
   );
 
-  const hasInitializedMapSource = useRef(false);
-
   const [isZooming, setIsZooming] = useState(false);
-
-  useEffect(() => {
-    if (!hasInitializedMapSource.current) {
-      return;
-    }
-
-    saveLayerSessionState(mapSource);
-  }, [mapSource, saveLayerSessionState]);
-
-  useEffect(() => {
-    if (hasInitializedMapSource.current) {
-      return;
-    }
-
-    initializeMapSource(initialLayer);
-    hasInitializedMapSource.current = true;
-  }, [initialLayer, initializeMapSource]);
 
   // Toggles the basemap between light and dark variants.
   function handleToggleMapSource() {
