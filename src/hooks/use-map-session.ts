@@ -1,14 +1,14 @@
 import { useCallback, useState } from "react";
 import {
-  getInitialSessionState,
+  getInitialUserSessionState,
   saveLayerState,
   saveSavedPinsState,
-  type SessionMapLayer,
-} from "../session/map-session";
+} from "../session/user-session";
 import type { SavedPinItem } from "../types/common";
+import type { SessionMapLayer } from "../types/viewer-state";
 
 export function useMapSession() {
-  const [initialSessionState] = useState(() => getInitialSessionState());
+  const [initialSessionState] = useState(() => getInitialUserSessionState());
 
   const saveSavedPinsSessionState = useCallback((savedPins: SavedPinItem[]) => {
     saveSavedPinsState(savedPins);

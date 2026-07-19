@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { create } from "zustand";
 import type { BattleMarkerItem, Point, SavedPinItem } from "../types/common";
-import type { SessionRadiusState } from "../session/map-session";
+import type { SessionRadiusState } from "../types/viewer-state";
 
 interface MapStoreState {
   radiusPoint: Point | null;
