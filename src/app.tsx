@@ -1,13 +1,13 @@
 import { type MapRef } from "react-map-gl/maplibre";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { MapView } from "./components/map-view";
 import { ControlPanel } from "./components/panel";
 import { useMapSession } from "./hooks/use-map-session";
-import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useViewerUrlParams } from "./hooks/use-viewer-url-params";
-import { DEFAULT_MAP_VIEW, DEFAULT_RADIUS_STATE } from "./types/viewer-state";
+import { DEFAULT_MAP_VIEW } from "./types/viewer-state";
 import { useMapStore } from "./stores/use-map-store";
+import { readMapViewFromUrl } from "./utils/viewer-url-state";
 
 export function App() {
   // Map state
@@ -18,29 +18,13 @@ export function App() {
     saveSavedPinsSessionState,
     saveLayerSessionState,
   } = useMapSession();
-  const {
-    initialMapViewFromUrl,
-    initialRadiusFromUrl,
-    updateMapViewInUrl,
-    updateRadiusInUrl,
-  } = useViewerUrlParams();
+  const { updateMapViewInUrl, updateRadiusInUrl } = useViewerUrlParams();
+  const initialMapViewState = useMemo(
+    () => readMapViewFromUrl() ?? DEFAULT_MAP_VIEW,
+    [],
+  );
 
-  const initialMapViewState = initialMapViewFromUrl ?? DEFAULT_MAP_VIEW;
-  const initialEffectiveRadiusState = initialRadiusFromUrl ?? DEFAULT_RADIUS_STATE;
-
-  // Radius
-  const {
-    radius,
-    radiusSize,
-    hasRadius,
-    setRadiusPoint,
-    setRadiusSize,
-    clearRadius,
-    fitRadiusToScreen,
-  } = useRadiusState({
-    mapRef,
-    initialRadiusState: initialEffectiveRadiusState,
-  });
+  const radius = useMapStore((state) => state.radius);
 
   const {
     savedPins,
@@ -78,32 +62,12 @@ export function App() {
         initialLayer={initialLayer}
         saveLayerSessionState={saveLayerSessionState}
         onMoveEnd={handleMapMoveEnd}
-        onFitRadiusToScreen={fitRadiusToScreen}
         onToggleSave={handleToggleSavedPin}
       />
 
       <ControlPanel
-        radius={radiusSize}
-        hasRadius={hasRadius}
+        mapRef={mapRef}
         savedPins={savedPins}
-        onSearch={setRadiusSize}
-        onSetRadiusPoint={(point) => {
-          setRadiusPoint(point);
-          useMapStore.getState().clearSelectedMarker();
-
-          const map = mapRef.current;
-          if (!map) return;
-
-          map.easeTo({
-            center: [point.lng, point.lat],
-            zoom: 8,
-            duration: 600,
-          });
-        }}
-        onClear={() => {
-          clearRadius();
-          useMapStore.getState().clearSelectedMarker();
-        }}
         onRemoveSavedPin={handleRemoveSavedPin}
         onSelectSavedPin={handleSelectSavedPin}
       />

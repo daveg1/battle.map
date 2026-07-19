@@ -1,20 +1,25 @@
 import type { ChangeEvent } from "react";
+import { useMapStore } from "../stores/use-map-store";
 
-interface Props {
-  radius: number;
-  hasRadius: boolean;
-  onSearch(radius: number): void;
-  onClear(): void;
-}
+export function ControlPanelRadiusForm() {
+  const radius = useMapStore((state) => state.radius);
+  const setRadius = useMapStore((state) => state.setRadius);
+  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const hasRadius = Boolean(radius.point);
 
-export function ControlPanelRadiusForm({
-  radius,
-  hasRadius,
-  onSearch,
-  onClear,
-}: Props) {
   function handleRadiusUpdate(event: ChangeEvent<HTMLInputElement>) {
-    onSearch(event.target.valueAsNumber);
+    setRadius((current) => ({
+      ...current,
+      size: event.target.valueAsNumber,
+    }));
+  }
+
+  function handleClearRadius() {
+    setRadius((current) => ({
+      ...current,
+      point: null,
+    }));
+    clearSelectedMarker();
   }
 
   return (
@@ -25,7 +30,7 @@ export function ControlPanelRadiusForm({
         <input
           type="number"
           className="w-16 rounded bg-stone-700 px-2 py-1"
-          value={radius}
+          value={radius.size}
           onChange={handleRadiusUpdate}
         />
       </div>
@@ -35,7 +40,7 @@ export function ControlPanelRadiusForm({
         className="mt-2 w-full"
         min={1}
         max={1000}
-        value={radius}
+        value={radius.size}
         onChange={handleRadiusUpdate}
       />
 
@@ -43,7 +48,7 @@ export function ControlPanelRadiusForm({
         type="button"
         className="w-full cursor-pointer rounded-lg bg-stone-700 py-2 enabled:hover:bg-stone-700/50 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={!hasRadius}
-        onClick={onClear}
+        onClick={handleClearRadius}
       >
         Clear radius
       </button>

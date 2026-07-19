@@ -1,19 +1,23 @@
+import type { RefObject } from "react";
+import type { MapRef } from "react-map-gl/maplibre";
 import { useState, type FormEvent } from "react";
 import { usePlaceSearch } from "../hooks/use-place-search";
 import type { SearchResultItem } from "../types/api";
-import type { Point } from "../types/common";
+import { useMapStore } from "../stores/use-map-store";
 import { PanelSearchResults } from "./panel-search-results";
 
 interface Props {
-  onSetRadiusPoint(point: Point): void;
+  mapRef: RefObject<MapRef | null>;
 }
 
-export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
+export function ControlPanelPlaceSearch({ mapRef }: Props) {
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const [selectedResult, setSelectedResult] = useState<SearchResultItem | null>(
     null,
   );
   const { query, setQuery, isFetching, isError, results } = usePlaceSearch();
+  const setRadius = useMapStore((state) => state.setRadius);
+  const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
 
   function applyPlaceSelection(result: SearchResultItem) {
     const lat = Number.parseFloat(result.lat);
@@ -23,7 +27,21 @@ export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
       return;
     }
 
-    onSetRadiusPoint({ lat, lng });
+    setRadius((current) => ({
+      ...current,
+      point: { lat, lng },
+    }));
+    clearSelectedMarker();
+
+    const map = mapRef.current;
+    if (map) {
+      map.easeTo({
+        center: [lng, lat],
+        zoom: 8,
+        duration: 600,
+      });
+    }
+
     setSelectionError(null);
   }
 

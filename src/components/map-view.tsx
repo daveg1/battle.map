@@ -1,3 +1,4 @@
+import * as turf from "@turf/turf";
 import {
   AttributionControl,
   GeolocateControl,
@@ -6,7 +7,7 @@ import {
   ScaleControl,
   type MapRef,
 } from "react-map-gl/maplibre";
-import type { RefObject } from "react";
+import { useCallback, type RefObject } from "react";
 import { useAltDragRadius } from "../hooks/use-alt-drag-radius";
 import { useBattleMarkers } from "../hooks/use-battle-markers";
 import { useMapRuntime } from "../hooks/use-map-runtime";
@@ -46,7 +47,6 @@ interface Props {
   initialLayer: SessionMapLayer;
   saveLayerSessionState(layer: SessionMapLayer): void;
   onMoveEnd(event: MoveEndEvent): void;
-  onFitRadiusToScreen(): void;
   onToggleSave(marker: BattleMarkerItem): void;
 }
 
@@ -56,7 +56,6 @@ export function MapView({
   initialLayer,
   saveLayerSessionState,
   onMoveEnd,
-  onFitRadiusToScreen,
   onToggleSave,
 }: Props) {
   const { width, height } = useScreenSize();
@@ -68,6 +67,34 @@ export function MapView({
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
   const radiusPoint = radius.point;
   const radiusSize = radius.size;
+
+  const fitRadiusToScreen = useCallback(() => {
+    if (!radiusPoint) {
+      return;
+    }
+
+    const map = mapRef.current;
+    if (!map) {
+      return;
+    }
+
+    const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
+      steps: 64,
+      units: "kilometers",
+    });
+    const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
+
+    map.fitBounds(
+      [
+        [minLng, minLat],
+        [maxLng, maxLat],
+      ],
+      {
+        padding: 40,
+        duration: 600,
+      },
+    );
+  }, [mapRef, radiusPoint, radiusSize]);
 
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize,
@@ -93,12 +120,12 @@ export function MapView({
     saveLayerSessionState,
     visibleMarkers,
     radiusPoint,
-    fitRadiusToScreen: onFitRadiusToScreen,
+    fitRadiusToScreen,
   });
 
   useMapShortcuts({
     hasRadius: Boolean(radiusPoint),
-    onFitRadius: onFitRadiusToScreen,
+    onFitRadius: fitRadiusToScreen,
   });
 
   return (
@@ -129,7 +156,7 @@ export function MapView({
         mapSource={mapSource}
         onToggleMapSource={handleToggleMapSource}
       />
-      <FitRadiusControl onFit={onFitRadiusToScreen} disabled={!radiusPoint} />
+      <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radiusPoint} />
       <ScaleControl />
       <AttributionControl compact={true} />
 

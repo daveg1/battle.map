@@ -1,7 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
 import { create } from "zustand";
 import type { BattleMarkerItem, SavedPinItem } from "../types/common";
-import type { SessionRadiusState } from "../types/viewer-state";
+import { DEFAULT_RADIUS_STATE, type SessionRadiusState } from "../types/viewer-state";
+import { readRadiusFromUrl } from "../utils/viewer-url-state";
 
 interface MapStoreState {
   radius: SessionRadiusState;
@@ -10,7 +11,6 @@ interface MapStoreState {
 }
 
 interface MapStoreActions {
-  initializeRadiusState(radius: SessionRadiusState): void;
   initializeSavedPins(savedPins: SavedPinItem[]): void;
   setRadius: Dispatch<SetStateAction<SessionRadiusState>>;
   setSavedPins: Dispatch<SetStateAction<SavedPinItem[]>>;
@@ -21,16 +21,9 @@ interface MapStoreActions {
 type MapStore = MapStoreState & MapStoreActions;
 
 export const useMapStore = create<MapStore>((set) => ({
-  radius: {
-    point: null,
-    size: 100,
-  },
+  radius: readRadiusFromUrl() ?? DEFAULT_RADIUS_STATE,
   savedPins: [],
   selectedMarker: null,
-  initializeRadiusState: (radius) =>
-    set({
-      radius,
-    }),
   initializeSavedPins: (savedPins) => set({ savedPins }),
   setRadius: (next) =>
     set((state) => ({

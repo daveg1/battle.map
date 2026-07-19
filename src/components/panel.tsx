@@ -1,27 +1,21 @@
+import type { RefObject } from "react";
+import type { MapRef } from "react-map-gl/maplibre";
 import { ControlPanelLogo } from "./panel-logo";
 import { ControlPanelSearchArea } from "./panel-search-area";
 import { ControlPanelSection } from "./panel-section";
 import { ControlPanelSavedPins } from "./panel-saved-pins";
-import type { Point, SavedPinItem } from "../types/common";
+import type { SavedPinItem } from "../types/common";
 
 interface Props {
-  radius: number;
-  hasRadius: boolean;
+  mapRef: RefObject<MapRef | null>;
   savedPins: SavedPinItem[];
-  onSearch(radius: number): void;
-  onSetRadiusPoint(point: Point): void;
-  onClear(): void;
   onRemoveSavedPin(id: string): void;
   onSelectSavedPin(id: string): void;
 }
 
 export function ControlPanel({
-  radius,
-  hasRadius,
+  mapRef,
   savedPins,
-  onSearch,
-  onSetRadiusPoint,
-  onClear,
   onRemoveSavedPin,
   onSelectSavedPin,
 }: Props) {
@@ -30,13 +24,7 @@ export function ControlPanel({
       <ControlPanelLogo />
 
       <ControlPanelSection title="Search">
-        <ControlPanelSearchArea
-          radius={radius}
-          hasRadius={hasRadius}
-          onSearch={onSearch}
-          onSetRadiusPoint={onSetRadiusPoint}
-          onClear={onClear}
-        />
+        <ControlPanelSearchArea mapRef={mapRef} />
       </ControlPanelSection>
 
       <ControlPanelSection title="Saved pins" className="flex min-h-0 flex-1 flex-col">
