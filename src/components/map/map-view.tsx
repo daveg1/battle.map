@@ -93,6 +93,14 @@ export function MapView({
     );
   }, [mapRef, radius]);
 
+  const handleClearRadius = useCallback(() => {
+    setRadius((current) => ({
+      ...current,
+      point: null,
+    }));
+    clearSelectedMarker();
+  }, [clearSelectedMarker, setRadius]);
+
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
     radiusSize: radius.size,
     setRadius,
@@ -117,6 +125,7 @@ export function MapView({
   useMapShortcuts({
     hasRadius: Boolean(radius.point),
     onFitRadius: fitRadiusToScreen,
+    onClearRadius: handleClearRadius,
   });
 
   return (
