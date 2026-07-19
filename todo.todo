@@ -34,7 +34,7 @@ User options:
 Shortcuts:
 	☐ Shortcuts button + popover
 	☐ alt+H - hides saved pins
-	☐ alt+C - clears radius
+	✔ alt+C / alt+backspace - clears radius
 	✔ alt+Enter - zooms to radius
 
 Mobile:
