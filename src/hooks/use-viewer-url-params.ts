@@ -1,5 +1,8 @@
 import { useMemo } from "react";
-import type { SessionMapView, SessionRadiusState } from "../session/map-session";
+import type {
+  SessionMapView,
+  SessionRadiusState,
+} from "../types/viewer-state";
 
 const MAP_LONGITUDE_PARAM = "lng";
 const MAP_LATITUDE_PARAM = "lat";

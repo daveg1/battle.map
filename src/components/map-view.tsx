@@ -25,7 +25,7 @@ import {
 } from "./map-battle-pins";
 import type { BattleMarkerItem } from "../types/common";
 import { useMapStore } from "../stores/use-map-store";
-import type { SessionMapLayer } from "../session/map-session";
+import type { SessionMapLayer } from "../types/viewer-state";
 import { useScreenSize } from "../hooks/use-screen-size";
 
 interface MoveEndEvent {

@@ -6,7 +6,7 @@ import { useMapSession } from "./hooks/use-map-session";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useViewerUrlParams } from "./hooks/use-viewer-url-params";
-import { DEFAULT_MAP_VIEW, DEFAULT_RADIUS_STATE } from "./session/map-session";
+import { DEFAULT_MAP_VIEW, DEFAULT_RADIUS_STATE } from "./types/viewer-state";
 import { useMapStore } from "./stores/use-map-store";
 
 export function App() {

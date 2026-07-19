@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { SessionMapLayer } from "../session/map-session";
+import type { SessionMapLayer } from "../types/viewer-state";
 
 interface UserSettingsState {
   mapSource: SessionMapLayer;

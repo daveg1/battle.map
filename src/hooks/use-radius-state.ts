@@ -2,7 +2,7 @@ import * as turf from "@turf/turf";
 import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
-import type { SessionRadiusState } from "../session/map-session";
+import type { SessionRadiusState } from "../types/viewer-state";
 import { useMapStore } from "../stores/use-map-store";
 
 interface Props {
