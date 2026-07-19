@@ -7,11 +7,11 @@ import { useSavedPinsState } from "./hooks/use-saved-pins-state";
 import { useViewerUrlParams } from "./hooks/use-viewer-url-params";
 import { DEFAULT_MAP_VIEW } from "./types/viewer-state";
 import { useMapStore } from "./stores/use-map-store";
+import { useUserSettingsStore } from "./stores/use-user-settings-store";
 import { readMapViewFromUrl } from "./utils/viewer-url-state";
 
 export function App() {
   const mapRef = useRef<MapRef | null>(null);
-  const [isSplashVisible, setIsSplashVisible] = useState(true);
   const { updateMapViewInUrl, updateRadiusInUrl } = useViewerUrlParams();
   const initialMapViewState = useMemo(
     () => readMapViewFromUrl() ?? DEFAULT_MAP_VIEW,
@@ -19,6 +19,15 @@ export function App() {
   );
 
   const radius = useMapStore((state) => state.radius);
+  const splashDismissed = useUserSettingsStore(
+    (state) => state.splashDismissed,
+  );
+  const setSplashDismissed = useUserSettingsStore(
+    (state) => state.setSplashDismissed,
+  );
+  const [isSplashVisible, setIsSplashVisible] = useState(
+    () => !splashDismissed,
+  );
 
   const {
     savedPins,
@@ -44,6 +53,11 @@ export function App() {
     updateRadiusInUrl(radius);
   }, [radius, updateRadiusInUrl]);
 
+  function handleDismissSplash() {
+    setSplashDismissed(true);
+    setIsSplashVisible(false);
+  }
+
   return (
     <div className="relative h-full overflow-hidden">
       <div className="flex h-full">
@@ -52,6 +66,7 @@ export function App() {
           initialMapViewState={initialMapViewState}
           onMoveEnd={handleMapMoveEnd}
           onToggleSave={handleToggleSavedPin}
+          onShowSplash={() => setIsSplashVisible(true)}
         />
 
         <ControlPanel
@@ -62,7 +77,7 @@ export function App() {
         />
       </div>
 
-      {isSplashVisible && <SplashScreen onDismiss={() => setIsSplashVisible(false)} />}
+      {isSplashVisible && <SplashScreen onDismiss={handleDismissSplash} />}
     </div>
   );
 }

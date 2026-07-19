@@ -13,6 +13,7 @@ import { useBattleMarkers } from "../../hooks/use-battle-markers";
 import { useMapRuntime } from "../../hooks/use-map-runtime";
 import { useMapShortcuts } from "../../hooks/use-map-shortcuts";
 import { FitRadiusControl } from "../control/control-fit-radius";
+import { SplashControl } from "../control/control-splash";
 import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
@@ -45,6 +46,7 @@ interface Props {
   };
   onMoveEnd(event: MoveEndEvent): void;
   onToggleSave(marker: BattleMarkerItem): void;
+  onShowSplash(): void;
 }
 
 export function MapView({
@@ -52,6 +54,7 @@ export function MapView({
   initialMapViewState,
   onMoveEnd,
   onToggleSave,
+  onShowSplash,
 }: Props) {
   const { width, height } = useScreenSize();
 
@@ -172,6 +175,7 @@ export function MapView({
         mapSource={mapSource}
         onToggleMapSource={handleToggleMapSource}
       />
+      <SplashControl onShowSplash={onShowSplash} />
       <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radius.point} />
       <ScaleControl />
       <AttributionControl compact={true} />

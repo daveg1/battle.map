@@ -3,12 +3,15 @@ import type { SessionMapLayer } from "../types/viewer-state";
 
 const MAP_SOURCE_STORAGE_KEY = "battlemap:map-source";
 const LEGACY_SESSION_STORAGE_KEY = "battlemap:session";
+const SPLASH_DISMISSED_STORAGE_KEY = "battlemap:splash-dismissed";
 
 interface UserSettingsState {
   mapSource: SessionMapLayer;
+  splashDismissed: boolean;
 }
 
 interface UserSettingsActions {
+  setSplashDismissed(dismissed: boolean): void;
   toggleMapSource(): void;
 }
 
@@ -16,6 +19,12 @@ type UserSettingsStore = UserSettingsState & UserSettingsActions;
 
 export const useUserSettingsStore = create<UserSettingsStore>((set) => ({
   mapSource: readMapSourceFromStorage(),
+  splashDismissed: readSplashDismissedFromStorage(),
+  setSplashDismissed: (dismissed) =>
+    set(() => {
+      writeSplashDismissedToStorage(dismissed);
+      return { splashDismissed: dismissed };
+    }),
   toggleMapSource: () =>
     set((state) => {
       const mapSource =
@@ -55,4 +64,23 @@ function writeMapSourceToStorage(mapSource: SessionMapLayer) {
   }
 
   window.localStorage.setItem(MAP_SOURCE_STORAGE_KEY, mapSource);
+}
+
+function readSplashDismissedFromStorage() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.localStorage.getItem(SPLASH_DISMISSED_STORAGE_KEY) === "true";
+}
+
+function writeSplashDismissedToStorage(isDismissed: boolean) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(
+    SPLASH_DISMISSED_STORAGE_KEY,
+    isDismissed ? "true" : "false",
+  );
 }
