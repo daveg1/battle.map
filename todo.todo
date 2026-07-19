@@ -6,7 +6,7 @@ Pins:
 
 Sessions:
 	✔ Session saving and restore on next visit
-	☐ refine storage contracts: viewer state, user state, etc
+	✔ refine state handling & persistence: viewer state, user state, etc
 
 Timeline:
 	☐ add a historical timeline with the ability to select a range within in
@@ -34,7 +34,7 @@ User options:
 Shortcuts:
 	☐ Shortcuts button + popover
 	☐ alt+H - hides saved pins
-	☐ alt+R - toggles radius
+	☐ alt+C - clears radius
 	✔ alt+Enter - zooms to radius
 
 Mobile:
