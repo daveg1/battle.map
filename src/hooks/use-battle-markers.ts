@@ -2,6 +2,7 @@ import maplibregl from "maplibre-gl";
 import { useMemo } from "react";
 import data from "../data/battles.json";
 import type { BattleMarkerItem, Point, SavedPinItem } from "../types/common";
+import type { SessionRadiusState } from "../types/viewer-state";
 
 const MERGE_MARKER_DISTANCE_METERS = 50;
 
@@ -80,16 +81,17 @@ function getBattleMarkers(center: Point, radius: number) {
 }
 
 interface UseBattleMarkersProps {
-  radiusPoint: Point | null;
-  radiusSize: number;
+  radius: SessionRadiusState;
   savedPins: SavedPinItem[];
 }
 
 export function useBattleMarkers({
-  radiusPoint,
-  radiusSize,
+  radius,
   savedPins,
 }: UseBattleMarkersProps) {
+  const radiusPoint = radius.point;
+  const radiusSize = radius.size;
+
   const battleMarkers = useMemo(() => {
     if (!radiusPoint) return [];
     return getBattleMarkers(radiusPoint, radiusSize);

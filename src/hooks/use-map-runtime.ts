@@ -8,7 +8,8 @@ import {
   BATTLE_UNCLUSTERED_LAYER_ID,
 } from "../components/map-battle-pins";
 import type { MapSourceType } from "../components/map-source";
-import type { BattleMarkerItem, Point } from "../types/common";
+import type { BattleMarkerItem } from "../types/common";
+import type { SessionRadiusState } from "../types/viewer-state";
 import { useMapStore } from "../stores/use-map-store";
 import { useUserSettingsStore } from "../stores/use-user-settings-store";
 
@@ -17,7 +18,7 @@ interface Props {
   initialLayer: MapSourceType;
   saveLayerSessionState(layer: MapSourceType): void;
   visibleMarkers: BattleMarkerItem[];
-  radiusPoint: Point | null;
+  radius: SessionRadiusState;
   fitRadiusToScreen(): void;
 }
 
@@ -26,7 +27,7 @@ export function useMapRuntime({
   initialLayer,
   saveLayerSessionState,
   visibleMarkers,
-  radiusPoint,
+  radius,
   fitRadiusToScreen,
 }: Props) {
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
@@ -93,7 +94,7 @@ export function useMapRuntime({
     };
     markerImage.src = "/battlepin.png";
 
-    if (radiusPoint) {
+    if (radius.point) {
       requestAnimationFrame(fitRadiusToScreen);
     }
   }

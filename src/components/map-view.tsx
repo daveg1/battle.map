@@ -65,11 +65,9 @@ export function MapView({
   const savedPins = useMapStore((state) => state.savedPins);
   const selectedMarker = useMapStore((state) => state.selectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
-  const radiusPoint = radius.point;
-  const radiusSize = radius.size;
 
   const fitRadiusToScreen = useCallback(() => {
-    if (!radiusPoint) {
+    if (!radius.point) {
       return;
     }
 
@@ -78,7 +76,7 @@ export function MapView({
       return;
     }
 
-    const circle = turf.circle([radiusPoint.lng, radiusPoint.lat], radiusSize, {
+    const circle = turf.circle([radius.point.lng, radius.point.lat], radius.size, {
       steps: 64,
       units: "kilometers",
     });
@@ -94,18 +92,14 @@ export function MapView({
         duration: 600,
       },
     );
-  }, [mapRef, radiusPoint, radiusSize]);
+  }, [mapRef, radius]);
 
   const { isAltPressed, handleMapMouseDown } = useAltDragRadius({
-    radiusSize,
+    radiusSize: radius.size,
     setRadius,
   });
 
-  const [visibleMarkers] = useBattleMarkers({
-    radiusPoint,
-    radiusSize,
-    savedPins,
-  });
+  const [visibleMarkers] = useBattleMarkers({ radius, savedPins });
 
   const {
     mapSource,
@@ -119,12 +113,12 @@ export function MapView({
     initialLayer,
     saveLayerSessionState,
     visibleMarkers,
-    radiusPoint,
+    radius,
     fitRadiusToScreen,
   });
 
   useMapShortcuts({
-    hasRadius: Boolean(radiusPoint),
+    hasRadius: Boolean(radius.point),
     onFitRadius: fitRadiusToScreen,
   });
 
@@ -156,12 +150,12 @@ export function MapView({
         mapSource={mapSource}
         onToggleMapSource={handleToggleMapSource}
       />
-      <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radiusPoint} />
+      <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radius.point} />
       <ScaleControl />
       <AttributionControl compact={true} />
 
-      {radiusPoint && <MapRadius point={radiusPoint} size={radiusSize} />}
-      <MapRadiusBlip point={radiusPoint} />
+      {radius.point && <MapRadius point={radius.point} size={radius.size} />}
+      <MapRadiusBlip point={radius.point} />
 
       <MapBattlePins
         markers={visibleMarkers}
