@@ -6,6 +6,7 @@ Pins:
 
 Sessions:
 	✔ Session saving and restore on next visit
+	☐ refine storage contracts: viewer state, user state, etc
 
 Timeline:
 	☐ add a historical timeline with the ability to select a range within in
