@@ -13,7 +13,7 @@ interface Props {
   onSelectedResultChange(result: SearchResultItem | null): void;
 }
 
-export function PanelDropdown({
+export function PanelSearchResults({
   query,
   isSearching,
   results,

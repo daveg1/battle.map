@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { usePlaceSearch } from "../hooks/use-place-search";
 import type { SearchResultItem } from "../types/api";
 import type { Point } from "../types/common";
-import { PanelDropdown } from "./panel-dropdown";
+import { PanelSearchResults } from "./panel-search-results";
 
 interface Props {
   onSetRadiusPoint(point: Point): void;
@@ -46,7 +46,7 @@ export function ControlPanelPlaceSearch({ onSetRadiusPoint }: Props) {
     <form className="flex flex-col gap-2" onSubmit={handlePlaceSearchSubmit}>
       <span className="text-sm">Place</span>
 
-      <PanelDropdown
+      <PanelSearchResults
         query={query}
         isSearching={isFetching}
         results={results}
