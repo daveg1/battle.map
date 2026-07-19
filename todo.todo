@@ -20,7 +20,7 @@ Map:
 	✔ add haptic feedback when placing radius
 
 Starting screen:
-	☐ Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
+	✔ Starting splash screen (gives quick overview on how to use app + helpful shortcuts)
 
 Searching:
 	✔ Search for a place to create radius
@@ -32,7 +32,8 @@ User options:
 	Pins outside the radius get opacity 50%
 
 Shortcuts:
-	☐ Shortcuts button + popover
+	✔ Shortcuts button + popover
+	^ the splash is used for this purpose
 	☐ alt+H - hides saved pins
 	✔ alt+C / alt+backspace - clears radius
 	✔ alt+Enter - zooms to radius
