@@ -10,6 +10,7 @@ import {
 import type { MapSourceType } from "../components/map-source";
 import type { BattleMarkerItem, Point } from "../types/common";
 import { useMapStore } from "../stores/use-map-store";
+import { useUserSettingsStore } from "../stores/use-user-settings-store";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -28,11 +29,15 @@ export function useMapRuntime({
   radiusPoint,
   fitRadiusToScreen,
 }: Props) {
-  const mapSource = useMapStore((state) => state.mapSource);
-  const initializeMapSource = useMapStore((state) => state.initializeMapSource);
-  const toggleMapSource = useMapStore((state) => state.toggleMapSource);
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const mapSource = useUserSettingsStore((state) => state.mapSource);
+  const initializeMapSource = useUserSettingsStore(
+    (state) => state.initializeMapSource,
+  );
+  const toggleMapSource = useUserSettingsStore(
+    (state) => state.toggleMapSource,
+  );
 
   const hasInitializedMapSource = useRef(false);
 

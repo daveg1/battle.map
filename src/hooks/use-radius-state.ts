@@ -8,13 +8,11 @@ import { useMapStore } from "../stores/use-map-store";
 interface Props {
   mapRef: RefObject<MapRef | null>;
   initialRadiusState: SessionRadiusState;
-  saveRadiusSessionState(radius: SessionRadiusState): void;
 }
 
 export function useRadiusState({
   mapRef,
   initialRadiusState,
-  saveRadiusSessionState,
 }: Props) {
   const hasInitializedRadius = useRef(false);
   const radiusPoint = useMapStore((state) => state.radiusPoint);
@@ -24,17 +22,6 @@ export function useRadiusState({
   const initializeRadiusState = useMapStore(
     (state) => state.initializeRadiusState,
   );
-
-  useEffect(() => {
-    if (!hasInitializedRadius.current) {
-      return;
-    }
-
-    saveRadiusSessionState({
-      point: radiusPoint,
-      size: radiusSize,
-    });
-  }, [radiusPoint, radiusSize, saveRadiusSessionState]);
 
   const fitRadiusToScreen = useCallback(() => {
     if (!radiusPoint) {

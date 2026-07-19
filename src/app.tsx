@@ -1,25 +1,32 @@
 import { type MapRef } from "react-map-gl/maplibre";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { MapView } from "./components/map-view";
 import { ControlPanel } from "./components/panel";
 import { useMapSession } from "./hooks/use-map-session";
 import { useRadiusState } from "./hooks/use-radius-state";
 import { useSavedPinsState } from "./hooks/use-saved-pins-state";
+import { useViewerUrlParams } from "./hooks/use-viewer-url-params";
+import { DEFAULT_MAP_VIEW, DEFAULT_RADIUS_STATE } from "./session/map-session";
 import { useMapStore } from "./stores/use-map-store";
 
 export function App() {
   // Map state
   const mapRef = useRef<MapRef | null>(null);
   const {
-    initialMapViewState,
-    initialRadiusState,
     initialSavedPins,
     initialLayer,
-    handleMapMoveEnd,
-    saveRadiusSessionState,
     saveSavedPinsSessionState,
     saveLayerSessionState,
   } = useMapSession();
+  const {
+    initialMapViewFromUrl,
+    initialRadiusFromUrl,
+    updateMapViewInUrl,
+    updateRadiusInUrl,
+  } = useViewerUrlParams();
+
+  const initialMapViewState = initialMapViewFromUrl ?? DEFAULT_MAP_VIEW;
+  const initialEffectiveRadiusState = initialRadiusFromUrl ?? DEFAULT_RADIUS_STATE;
 
   // Radius
   const {
@@ -28,7 +35,10 @@ export function App() {
     setRadiusPoint,
     setRadiusSize,
     fitRadiusToScreen,
-  } = useRadiusState({ mapRef, initialRadiusState, saveRadiusSessionState });
+  } = useRadiusState({
+    mapRef,
+    initialRadiusState: initialEffectiveRadiusState,
+  });
 
   const {
     savedPins,
@@ -40,6 +50,26 @@ export function App() {
     initialSavedPins,
     saveSavedPinsSessionState,
   });
+
+  const handleMapMoveEnd = useCallback(
+    (event: {
+      viewState: {
+        longitude: number;
+        latitude: number;
+        zoom: number;
+      };
+    }) => {
+      updateMapViewInUrl(event.viewState);
+    },
+    [updateMapViewInUrl],
+  );
+
+  useEffect(() => {
+    updateRadiusInUrl({
+      point: radiusPoint,
+      size: radiusSize,
+    });
+  }, [radiusPoint, radiusSize, updateRadiusInUrl]);
 
   return (
     <div className="flex h-full">
