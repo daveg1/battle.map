@@ -12,7 +12,6 @@ import { useBattleMarkers } from "../hooks/use-battle-markers";
 import { useMapRuntime } from "../hooks/use-map-runtime";
 import { useMapShortcuts } from "../hooks/use-map-shortcuts";
 import { FitRadiusControl } from "./fit-radius-control";
-import { MapLayerControl } from "./map-layer-control";
 import { MapSource } from "./map-source";
 import { MapPopup } from "./map-popup";
 import { MapRadius } from "./map-radius";
@@ -127,8 +126,10 @@ export function MapView({
 
       <GeolocateControl position="top-right" />
       <NavigationControl position="top-right" />
-      <MapLayerControl source={mapSource} onToggle={handleToggleMapSource} />
-      <SettingsControl />
+      <SettingsControl
+        mapSource={mapSource}
+        onToggleMapSource={handleToggleMapSource}
+      />
       <FitRadiusControl onFit={onFitRadiusToScreen} disabled={!radiusPoint} />
       <ScaleControl />
       <AttributionControl compact={true} />
