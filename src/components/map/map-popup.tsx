@@ -7,6 +7,7 @@ import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline
 import { MapArticlePreview } from "./map-article-preview";
 import { TextTooltip } from "../ui/text-tooltip";
 import { SelectableList } from "../ui/selectable-list";
+import { useArticlePreviewMediaRow } from "../../hooks/use-article-preview";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -31,6 +32,9 @@ export function MapPopup({
 
   const clampedBattleIndex = Math.min(battleIndex, battleCount - 1);
   const currentBattle = selectedMarker.battles[clampedBattleIndex];
+  const { shouldShowMediaRow } = useArticlePreviewMediaRow(
+    selectedMarker.battles.map((battle) => battle.article),
+  );
 
   useEffect(() => {
     setBattleIndex(0);
@@ -128,7 +132,10 @@ export function MapPopup({
               Wikipedia
             </a>
 
-            <MapArticlePreview articleTitle={currentBattle.article} />
+            <MapArticlePreview
+              articleTitle={currentBattle.article}
+              showMediaRow={shouldShowMediaRow}
+            />
           </div>
         </div>
       </div>

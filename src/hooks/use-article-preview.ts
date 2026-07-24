@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 const BASE_URL = "https://en.wikipedia.org/api/rest_v1/page/summary";
@@ -77,6 +77,22 @@ async function fetchArticlePreview(
 }
 
 /**
+ * Creates the query options for a single article preview request so the same
+ * request configuration can be reused in both single and multi-query contexts.
+ */
+export function getArticlePreviewQueryOptions(articleTitle: string) {
+  const normalizedArticleTitle = normalizeArticleTitle(articleTitle);
+  const canFetch = normalizedArticleTitle.length > 0;
+
+  return {
+    queryKey: ["article-preview", normalizedArticleTitle],
+    queryFn: () => fetchArticlePreview(normalizedArticleTitle),
+    enabled: canFetch,
+    staleTime: ARTICLE_PREVIEW_STALE_TIME_MS,
+  };
+}
+
+/**
  * React Query hook for retrieving and caching Wikipedia article previews.
  * It normalizes incoming input, conditionally fetches when non-empty, and
  * returns both query status flags and the mapped preview payload.
@@ -86,22 +102,38 @@ export function useArticlePreview(articleTitle: string) {
     () => normalizeArticleTitle(articleTitle),
     [articleTitle],
   );
-  const canFetch = normalizedArticleTitle.length > 0;
-
-  const queryState = useQuery({
-    queryKey: ["article-preview", normalizedArticleTitle],
-    queryFn: () => fetchArticlePreview(normalizedArticleTitle),
-    enabled: canFetch,
-    staleTime: ARTICLE_PREVIEW_STALE_TIME_MS,
-  });
+  const queryState = useQuery(getArticlePreviewQueryOptions(articleTitle));
 
   return {
-    data: canFetch ? (queryState.data ?? null) : null,
+    data: normalizedArticleTitle.length > 0 ? (queryState.data ?? null) : null,
     isLoading: queryState.isPending,
     isFetching: queryState.isFetching,
     isError: queryState.isError,
     isSuccess: queryState.isSuccess,
     error: queryState.error,
     refetch: queryState.refetch,
+  };
+}
+
+/**
+ * Retrieves preview metadata for a set of articles and derives whether a media
+ * row should be shown for stable layout across item-to-item switching.
+ */
+export function useArticlePreviewMediaRow(articleTitles: string[]) {
+  const previewQueries = useQueries({
+    queries: articleTitles.map((articleTitle) =>
+      getArticlePreviewQueryOptions(articleTitle),
+    ),
+  });
+
+  const hasAnyThumbnail = previewQueries.some((query) =>
+    Boolean(query.data?.thumbnail),
+  );
+  const isCheckingAnyPreview = previewQueries.some((query) => query.isPending);
+
+  return {
+    hasAnyThumbnail,
+    isCheckingAnyPreview,
+    shouldShowMediaRow: hasAnyThumbnail || isCheckingAnyPreview,
   };
 }
