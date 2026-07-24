@@ -8,7 +8,12 @@ export function MapArticlePreview({ articleTitle }: Props) {
   const { data: preview, isLoading, isError } = useArticlePreview(articleTitle);
 
   if (isLoading) {
-    return <p className="text-xs text-stone-500">Loading article preview...</p>;
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="h-32 w-70 animate-pulse rounded bg-stone-300/70" />
+        <div className="h-12 w-70 animate-pulse rounded bg-stone-300/70" />
+      </div>
+    );
   }
 
   if (isError) {
