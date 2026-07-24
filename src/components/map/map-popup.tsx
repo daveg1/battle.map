@@ -1,11 +1,12 @@
 import { Popup } from "react-map-gl/maplibre";
 import type { BattleMarkerItem } from "../../types/common";
 import clsx from "clsx";
-import { useEffect, useState, type KeyboardEvent } from "react";
+import { useEffect, useState } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
 import { MapArticlePreview } from "./map-article-preview";
 import { TextTooltip } from "../ui/text-tooltip";
+import { SelectableList } from "../ui/selectable-list";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -35,31 +36,6 @@ export function MapPopup({
     setBattleIndex(0);
   }, [selectedMarker.id]);
 
-  function handleBattleListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "ArrowDown") {
-      event.preventDefault();
-      setBattleIndex((current) => Math.min(battleCount - 1, current + 1));
-      return;
-    }
-
-    if (event.key === "ArrowUp") {
-      event.preventDefault();
-      setBattleIndex((current) => Math.max(0, current - 1));
-      return;
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault();
-      setBattleIndex(0);
-      return;
-    }
-
-    if (event.key === "End") {
-      event.preventDefault();
-      setBattleIndex(battleCount - 1);
-    }
-  }
-
   return (
     <Popup
       anchor="bottom"
@@ -78,50 +54,37 @@ export function MapPopup({
           "flex max-w-[84vw] flex-col gap-3",
           battleCount > 1 ? "w-136" : "w-70",
         )}
-        onKeyDown={handleBattleListKeyDown}
       >
-        {battleCount > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 md:hidden">
-            {selectedMarker.battles.map((battle, index) => (
-              <button
-                key={`${battle.name}-${battle.year}-${index}`}
-                type="button"
-                onClick={() => setBattleIndex(index)}
-                className={clsx(
-                  "cursor-pointer rounded border px-2 py-1 text-left text-xs whitespace-nowrap",
-                  clampedBattleIndex === index
-                    ? "border-stone-400 bg-stone-200 text-stone-900"
-                    : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
-                )}
-              >
-                {battle.year} · {battle.name}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="flex min-h-0 gap-3">
           {battleCount > 1 && (
-            <aside className="hidden w-42 shrink-0 md:block">
-              <div className="max-h-85 space-y-1 overflow-y-auto pr-1">
-                {selectedMarker.battles.map((battle, index) => (
-                  <button
-                    key={`${battle.name}-${battle.year}-${index}`}
-                    type="button"
-                    onClick={() => setBattleIndex(index)}
-                    className={clsx(
-                      "w-full cursor-pointer rounded border px-2 py-1.5 text-left",
-                      clampedBattleIndex === index
-                        ? "border-stone-400 bg-stone-200 text-stone-900"
-                        : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
-                    )}
-                  >
+            <aside className="w-42 shrink-0">
+              <SelectableList
+                items={selectedMarker.battles}
+                selectedIndex={clampedBattleIndex}
+                onSelectedIndexChange={setBattleIndex}
+                getItemKey={(battle, index) =>
+                  `${battle.name}-${battle.year}-${index}`
+                }
+                className="max-h-85 space-y-1 overflow-y-auto pr-1"
+                itemClassName={({ isSelected }) =>
+                  clsx(
+                    "w-full rounded border px-2 py-1.5 text-left",
+                    isSelected
+                      ? "border-stone-400 bg-stone-200 text-stone-900"
+                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
+                  )
+                }
+              >
+                {({ item: battle }) => (
+                  <>
                     <p className="text-xs font-semibold">{battle.year}</p>
                     <p className="truncate text-xs">{battle.name}</p>
-                    <p className="truncate text-[11px] text-stone-500">{battle.war}</p>
-                  </button>
-                ))}
-              </div>
+                    <p className="truncate text-[11px] text-stone-500">
+                      {battle.war}
+                    </p>
+                  </>
+                )}
+              </SelectableList>
             </aside>
           )}
 
