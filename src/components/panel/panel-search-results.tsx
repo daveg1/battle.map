@@ -32,6 +32,12 @@ export function PanelSearchResults({
     onSelectedResultChange(results[selectedResultIndex] ?? null);
   }, [onSelectedResultChange, results, selectedResultIndex]);
 
+  function handleInputFocusOrClick() {
+    if (query.trim() && results.length > 0) {
+      setIsOpen(true);
+    }
+  }
+
   function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (!isOpen || results.length === 0) {
       return;
@@ -70,11 +76,8 @@ export function PanelSearchResults({
             onQueryChange(nextQuery);
             setIsOpen(Boolean(nextQuery.trim()));
           }}
-          onFocus={() => {
-            if (query.trim()) {
-              setIsOpen(true);
-            }
-          }}
+          onFocus={handleInputFocusOrClick}
+          onClick={handleInputFocusOrClick}
           onKeyDown={handleInputKeyDown}
         />
       </Popover.Anchor>
@@ -111,7 +114,7 @@ export function PanelSearchResults({
                 key={result.place_id}
                 type="button"
                 className={clsx(
-                  "w-full cursor-pointer px-2 py-2 text-left text-sm hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
+                  "w-full cursor-pointer px-2 py-2 text-left text-sm text-stone-300 hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
                   selectedResultIndex === index && "bg-stone-700/70",
                 )}
                 onMouseEnter={() => setSelectedResultIndex(index)}
