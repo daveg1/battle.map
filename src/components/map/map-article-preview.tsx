@@ -11,7 +11,7 @@ export function MapArticlePreview({ articleTitle }: Props) {
     return (
       <div className="flex flex-col gap-2">
         <div className="h-32 w-70 animate-pulse rounded bg-stone-300/70" />
-        <div className="h-12 w-70 animate-pulse rounded bg-stone-300/70" />
+        <div className="h-20 w-70 animate-pulse rounded bg-stone-300/70" />
       </div>
     );
   }
@@ -34,12 +34,13 @@ export function MapArticlePreview({ articleTitle }: Props) {
           alt={preview.title}
           width={preview.thumbnail.width}
           height={preview.thumbnail.height}
-          className="max-h-32 w-full rounded object-cover"
+          className="max-h-32 w-full select-none rounded object-cover"
           loading="lazy"
           decoding="async"
+          draggable={false}
         />
       )}
-      <p className="text-xs text-stone-700">{preview.extract}</p>
+      <p className="h-20 line-clamp-5 text-xs text-stone-700">{preview.extract}</p>
     </div>
   );
 }
