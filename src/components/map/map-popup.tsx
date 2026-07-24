@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
+import { MapArticlePreview } from "./map-article-preview";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -94,6 +95,8 @@ export function MapPopup({
         >
           Wikipedia
         </a>
+
+        <MapArticlePreview articleTitle={currentBattle.article} />
 
         {battleCount > 1 && (
           <div className="relative mt-1 flex items-center justify-between gap-2">
