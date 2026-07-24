@@ -4,7 +4,7 @@ Pins:
 	☐ Add sidebar to popover UI to show list of battles under one pin
 	☐ Prev and Next buttons scroll through saves pins instead
 	✔ Animations for adding/removing saved pins
-	☐ Add wikipedia preview to popover
+	✔ Add wikipedia preview to popover
 
 Sessions:
 	✔ Session saving and restore on next visit
