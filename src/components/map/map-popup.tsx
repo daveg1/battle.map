@@ -1,7 +1,7 @@
 import { Popup } from "react-map-gl/maplibre";
 import type { BattleMarkerItem } from "../../types/common";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
 import { MapArticlePreview } from "./map-article-preview";
@@ -35,12 +35,29 @@ export function MapPopup({
     setBattleIndex(0);
   }, [selectedMarker.id]);
 
-  function handlePrev() {
-    setBattleIndex((current) => Math.max(0, current - 1));
-  }
+  function handleBattleListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setBattleIndex((current) => Math.min(battleCount - 1, current + 1));
+      return;
+    }
 
-  function handleNext() {
-    setBattleIndex((current) => Math.min(battleCount - 1, current + 1));
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setBattleIndex((current) => Math.max(0, current - 1));
+      return;
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+      setBattleIndex(0);
+      return;
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+      setBattleIndex(battleCount - 1);
+    }
   }
 
   return (
@@ -56,73 +73,101 @@ export function MapPopup({
       closeOnClick={false}
       focusAfterOpen={false}
     >
-      <div className="flex w-70 flex-col justify-end gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <TextTooltip
-            as="h3"
-            text={currentBattle.name}
-            className="min-w-0 truncate text-lg font-semibold"
-          />
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
-            aria-label="Save pin"
-            title={isSaved ? "Unsave pin" : "Save pin"}
-            onClick={() => onToggleSave(selectedMarker)}
-          >
-            {!isSaved && <BookmarkOutlineIcon className="size-4" />}
-            {isSaved && <BookmarkSolidIcon className="size-4" />}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
-          <span className="font-semibold">Year</span>
-          <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
-
-          <span className="font-semibold">Location</span>
-          <span className="min-w-0 wrap-break-word">
-            {currentBattle.place}, {currentBattle.country}
-          </span>
-
-          <span className="font-semibold">War</span>
-          <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
-        </div>
-
-        <a
-          className="text-sm text-blue-700"
-          target="_new"
-          href={currentBattle.article}
-        >
-          Wikipedia
-        </a>
-
-        <MapArticlePreview articleTitle={currentBattle.article} />
-
+      <div
+        className={clsx(
+          "flex max-w-[84vw] flex-col gap-3",
+          battleCount > 1 ? "w-136" : "w-70",
+        )}
+        onKeyDown={handleBattleListKeyDown}
+      >
         {battleCount > 1 && (
-          <div className="relative mt-1 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={clampedBattleIndex === 0}
-              onClick={handlePrev}
-            >
-              Prev
-            </button>
-
-            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-xs whitespace-nowrap text-stone-500 select-none">
-              {clampedBattleIndex + 1} / {battleCount}
-            </span>
-
-            <button
-              type="button"
-              className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={clampedBattleIndex === battleCount - 1}
-              onClick={handleNext}
-            >
-              Next
-            </button>
+          <div className="flex gap-2 overflow-x-auto pb-1 md:hidden">
+            {selectedMarker.battles.map((battle, index) => (
+              <button
+                key={`${battle.name}-${battle.year}-${index}`}
+                type="button"
+                onClick={() => setBattleIndex(index)}
+                className={clsx(
+                  "cursor-pointer rounded border px-2 py-1 text-left text-xs whitespace-nowrap",
+                  clampedBattleIndex === index
+                    ? "border-stone-400 bg-stone-200 text-stone-900"
+                    : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
+                )}
+              >
+                {battle.year} · {battle.name}
+              </button>
+            ))}
           </div>
         )}
+
+        <div className="flex min-h-0 gap-3">
+          {battleCount > 1 && (
+            <aside className="hidden w-42 shrink-0 md:block">
+              <div className="max-h-85 space-y-1 overflow-y-auto pr-1">
+                {selectedMarker.battles.map((battle, index) => (
+                  <button
+                    key={`${battle.name}-${battle.year}-${index}`}
+                    type="button"
+                    onClick={() => setBattleIndex(index)}
+                    className={clsx(
+                      "w-full cursor-pointer rounded border px-2 py-1.5 text-left",
+                      clampedBattleIndex === index
+                        ? "border-stone-400 bg-stone-200 text-stone-900"
+                        : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
+                    )}
+                  >
+                    <p className="text-xs font-semibold">{battle.year}</p>
+                    <p className="truncate text-xs">{battle.name}</p>
+                    <p className="truncate text-[11px] text-stone-500">{battle.war}</p>
+                  </button>
+                ))}
+              </div>
+            </aside>
+          )}
+
+          <div className="flex min-w-0 flex-1 flex-col justify-end gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <TextTooltip
+                as="h3"
+                text={currentBattle.name}
+                className="min-w-0 truncate text-lg font-semibold"
+              />
+              <button
+                type="button"
+                className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
+                aria-label="Save pin"
+                title={isSaved ? "Unsave pin" : "Save pin"}
+                onClick={() => onToggleSave(selectedMarker)}
+              >
+                {!isSaved && <BookmarkOutlineIcon className="size-4" />}
+                {isSaved && <BookmarkSolidIcon className="size-4" />}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+              <span className="font-semibold">Year</span>
+              <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
+
+              <span className="font-semibold">Location</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.place}, {currentBattle.country}
+              </span>
+
+              <span className="font-semibold">War</span>
+              <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
+            </div>
+
+            <a
+              className="text-sm text-blue-700"
+              target="_new"
+              href={currentBattle.article}
+            >
+              Wikipedia
+            </a>
+
+            <MapArticlePreview articleTitle={currentBattle.article} />
+          </div>
+        </div>
       </div>
     </Popup>
   );

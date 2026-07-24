@@ -37,8 +37,8 @@ export function MapArticlePreview({ articleTitle }: Props) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
-        <div className="h-32 w-70 animate-pulse rounded bg-stone-300/70" />
-        <div className="h-20 w-70 animate-pulse rounded bg-stone-300/70" />
+        <div className="h-32 w-full animate-pulse rounded bg-stone-300/70" />
+        <div className="h-20 w-full animate-pulse rounded bg-stone-300/70" />
       </div>
     );
   }
