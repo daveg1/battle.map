@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
 import { MapArticlePreview } from "./map-article-preview";
+import { TextTooltip } from "../ui/text-tooltip";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -57,12 +58,11 @@ export function MapPopup({
     >
       <div className="flex w-70 flex-col justify-end gap-2">
         <div className="flex items-center justify-between gap-2">
-          <h3
+          <TextTooltip
+            as="h3"
+            text={currentBattle.name}
             className="min-w-0 truncate text-lg font-semibold"
-            title={currentBattle.name}
-          >
-            {currentBattle.name}
-          </h3>
+          />
           <button
             type="button"
             className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
