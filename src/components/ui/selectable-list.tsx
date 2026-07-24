@@ -15,12 +15,16 @@ interface Props<TItem> {
   items: TItem[];
   selectedIndex: number;
   onSelectedIndexChange(index: number): void;
+  onItemClick?(item: TItem, index: number): void;
+  onItemMouseEnter?(item: TItem, index: number): void;
   getItemKey?(item: TItem, index: number): Key;
   className?: string;
   itemClassName?:
     | string
     | ((props: ItemRenderProps<TItem>) => string | undefined);
   orientation?: "horizontal" | "vertical";
+  enableKeyboardNavigation?: boolean;
+  tabIndex?: number;
   children(props: ItemRenderProps<TItem>): ReactNode;
 }
 
@@ -28,13 +32,21 @@ export function SelectableList<TItem>({
   items,
   selectedIndex,
   onSelectedIndexChange,
+  onItemClick,
+  onItemMouseEnter,
   getItemKey,
   className,
   itemClassName,
   orientation = "vertical",
+  enableKeyboardNavigation = true,
+  tabIndex = 0,
   children,
 }: Props<TItem>) {
   function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!enableKeyboardNavigation) {
+      return;
+    }
+
     if (items.length === 0) {
       return;
     }
@@ -72,7 +84,7 @@ export function SelectableList<TItem>({
   return (
     <div
       role="listbox"
-      tabIndex={0}
+      tabIndex={tabIndex}
       aria-orientation={orientation}
       className={className}
       onKeyDown={handleKeyDown}
@@ -90,7 +102,11 @@ export function SelectableList<TItem>({
             type="button"
             role="option"
             aria-selected={isSelected}
-            onClick={() => onSelectedIndexChange(index)}
+            onMouseEnter={() => onItemMouseEnter?.(item, index)}
+            onClick={() => {
+              onSelectedIndexChange(index);
+              onItemClick?.(item, index);
+            }}
             className={clsx("cursor-pointer", renderedItemClassName)}
           >
             {children({ item, index, isSelected })}

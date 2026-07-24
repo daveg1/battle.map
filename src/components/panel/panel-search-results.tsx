@@ -3,6 +3,7 @@ import { Popover } from "radix-ui";
 import { useEffect, useState, type KeyboardEvent } from "react";
 import { PLACE_SEARCH_MIN_CHARS } from "../../hooks/use-place-search";
 import type { SearchResultItem } from "../../types/api";
+import { SelectableList } from "../ui/selectable-list";
 
 interface Props {
   query: string;
@@ -108,24 +109,29 @@ export function PanelSearchResults({
               </p>
             )}
 
-          {!isSearching &&
-            results.map((result, index) => (
-              <button
-                key={result.place_id}
-                type="button"
-                className={clsx(
-                  "w-full cursor-pointer px-2 py-2 text-left text-sm text-stone-300 hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
-                  selectedResultIndex === index && "bg-stone-700/70",
-                )}
-                onMouseEnter={() => setSelectedResultIndex(index)}
-                onClick={() => {
-                  onSelectResult(result);
-                  setIsOpen(false);
-                }}
-              >
-                {result.display_name || result.name}
-              </button>
-            ))}
+          {!isSearching && (
+            <SelectableList
+              items={results}
+              selectedIndex={selectedResultIndex}
+              onSelectedIndexChange={setSelectedResultIndex}
+              onItemMouseEnter={(_, index) => setSelectedResultIndex(index)}
+              onItemClick={(result) => {
+                onSelectResult(result);
+                setIsOpen(false);
+              }}
+              getItemKey={(result) => result.place_id}
+              enableKeyboardNavigation={false}
+              tabIndex={-1}
+              itemClassName={({ isSelected }) =>
+                clsx(
+                  "w-full px-2 py-2 text-left text-sm text-stone-300 hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
+                  isSelected && "bg-stone-700/70",
+                )
+              }
+            >
+              {({ item: result }) => result.display_name || result.name}
+            </SelectableList>
+          )}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
