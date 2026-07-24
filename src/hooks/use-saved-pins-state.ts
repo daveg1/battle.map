@@ -1,4 +1,4 @@
-import type { RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { BattleMarkerItem, SavedPinItem } from "../types/common";
 import { useMapStore } from "../stores/use-map-store";
@@ -25,21 +25,71 @@ export function useSavedPinsState({ mapRef }: Props) {
   const savedPins = useMapStore((state) => state.savedPins);
   const setSavedPins = useMapStore((state) => state.setSavedPins);
   const setSelectedMarker = useMapStore((state) => state.setSelectedMarker);
+  const [recentlyAddedPinId, setRecentlyAddedPinId] = useState<string | null>(
+    null,
+  );
+  const [recentlyRemovedPinId, setRecentlyRemovedPinId] = useState<
+    string | null
+  >(null);
+  const removalTimeoutByPinId = useRef<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    if (!recentlyAddedPinId) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setRecentlyAddedPinId(null);
+    }, 350);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [recentlyAddedPinId]);
+
+  useEffect(
+    () => () => {
+      for (const timeoutId of removalTimeoutByPinId.current.values()) {
+        window.clearTimeout(timeoutId);
+      }
+      removalTimeoutByPinId.current.clear();
+    },
+    [],
+  );
+
+  function handleRemoveSavedPin(id: string) {
+    if (removalTimeoutByPinId.current.has(id)) {
+      return;
+    }
+
+    setRecentlyRemovedPinId(id);
+    if (recentlyAddedPinId === id) {
+      setRecentlyAddedPinId(null);
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setSavedPins((current) => current.filter((pin) => pin.id !== id));
+      setRecentlyRemovedPinId((current) => (current === id ? null : current));
+      removalTimeoutByPinId.current.delete(id);
+    }, 300);
+
+    removalTimeoutByPinId.current.set(id, timeoutId);
+  }
 
   // Adds/removes a marker from saved pins whilst preserving order
   function handleToggleSavedPin(marker: BattleMarkerItem) {
+    const isAlreadySaved = savedPins.some((pin) => pin.id === marker.id);
+    if (isAlreadySaved) {
+      handleRemoveSavedPin(marker.id);
+      return;
+    }
+
     setSavedPins((current) => {
-      const isAlreadySaved = current.some((pin) => pin.id === marker.id);
-      if (isAlreadySaved) {
-        return current.filter((pin) => pin.id !== marker.id);
-      }
-
-      return [createSavedPin(marker), ...current];
+      setRecentlyAddedPinId(marker.id);
+      return current.some((pin) => pin.id === marker.id)
+        ? current
+        : [createSavedPin(marker), ...current];
     });
-  }
-
-  function handleRemoveSavedPin(id: string) {
-    setSavedPins((current) => current.filter((pin) => pin.id !== id));
   }
 
   // Navigates to a saved pin on the map
@@ -66,6 +116,8 @@ export function useSavedPinsState({ mapRef }: Props) {
 
   return {
     savedPins,
+    recentlyAddedPinId,
+    recentlyRemovedPinId,
     handleToggleSavedPin,
     handleRemoveSavedPin,
     handleSelectSavedPin,

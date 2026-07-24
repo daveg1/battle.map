@@ -31,6 +31,8 @@ export function App() {
 
   const {
     savedPins,
+    recentlyAddedPinId,
+    recentlyRemovedPinId,
     handleToggleSavedPin,
     handleRemoveSavedPin,
     handleSelectSavedPin,
@@ -72,6 +74,8 @@ export function App() {
         <ControlPanel
           mapRef={mapRef}
           savedPins={savedPins}
+          recentlyAddedPinId={recentlyAddedPinId}
+          recentlyRemovedPinId={recentlyRemovedPinId}
           onRemoveSavedPin={handleRemoveSavedPin}
           onSelectSavedPin={handleSelectSavedPin}
         />

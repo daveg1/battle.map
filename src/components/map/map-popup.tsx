@@ -4,6 +4,10 @@ import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { BookmarkIcon as BookmarkSolidIcon } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutlineIcon } from "@heroicons/react/24/outline";
+import { MapArticlePreview } from "./map-article-preview";
+import { TextTooltip } from "../ui/text-tooltip";
+import { SelectableList } from "../ui/selectable-list";
+import { useArticlePreviewMediaRow } from "../../hooks/use-article-preview";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -28,18 +32,13 @@ export function MapPopup({
 
   const clampedBattleIndex = Math.min(battleIndex, battleCount - 1);
   const currentBattle = selectedMarker.battles[clampedBattleIndex];
+  const { shouldShowMediaRow } = useArticlePreviewMediaRow(
+    selectedMarker.battles.map((battle) => battle.article),
+  );
 
   useEffect(() => {
     setBattleIndex(0);
   }, [selectedMarker.id]);
-
-  function handlePrev() {
-    setBattleIndex((current) => Math.max(0, current - 1));
-  }
-
-  function handleNext() {
-    setBattleIndex((current) => Math.min(battleCount - 1, current + 1));
-  }
 
   return (
     <Popup
@@ -54,72 +53,91 @@ export function MapPopup({
       closeOnClick={false}
       focusAfterOpen={false}
     >
-      <div className="flex w-70 flex-col justify-end gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <h3
-            className="min-w-0 truncate text-lg font-semibold"
-            title={currentBattle.name}
-          >
-            {currentBattle.name}
-          </h3>
-          <button
-            type="button"
-            className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
-            aria-label="Save pin"
-            title={isSaved ? "Unsave pin" : "Save pin"}
-            onClick={() => onToggleSave(selectedMarker)}
-          >
-            {!isSaved && <BookmarkOutlineIcon className="size-4" />}
-            {isSaved && <BookmarkSolidIcon className="size-4" />}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
-          <span className="font-semibold">Year</span>
-          <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
-
-          <span className="font-semibold">Location</span>
-          <span className="min-w-0 wrap-break-word">
-            {currentBattle.place}, {currentBattle.country}
-          </span>
-
-          <span className="font-semibold">War</span>
-          <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
-        </div>
-
-        <a
-          className="text-sm text-blue-700"
-          target="_new"
-          href={currentBattle.article}
-        >
-          Wikipedia
-        </a>
-
-        {battleCount > 1 && (
-          <div className="relative mt-1 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={clampedBattleIndex === 0}
-              onClick={handlePrev}
-            >
-              Prev
-            </button>
-
-            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 text-xs whitespace-nowrap text-stone-500 select-none">
-              {clampedBattleIndex + 1} / {battleCount}
-            </span>
-
-            <button
-              type="button"
-              className="cursor-pointer rounded bg-stone-200 px-2 py-1 text-sm enabled:hover:bg-stone-300 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={clampedBattleIndex === battleCount - 1}
-              onClick={handleNext}
-            >
-              Next
-            </button>
-          </div>
+      <div
+        className={clsx(
+          "flex max-w-[84vw] flex-col gap-3",
+          battleCount > 1 ? "w-136" : "w-70",
         )}
+      >
+        <div className="flex min-h-0 gap-3">
+          {battleCount > 1 && (
+            <aside className="w-42 shrink-0">
+              <SelectableList
+                items={selectedMarker.battles}
+                selectedIndex={clampedBattleIndex}
+                onSelectedIndexChange={setBattleIndex}
+                getItemKey={(battle, index) =>
+                  `${battle.name}-${battle.year}-${index}`
+                }
+                className="max-h-85 space-y-1 overflow-y-auto pr-1"
+                itemClassName={({ isSelected }) =>
+                  clsx(
+                    "w-full rounded border px-2 py-1.5 text-left",
+                    isSelected
+                      ? "border-stone-400 bg-stone-200 text-stone-900"
+                      : "border-stone-300 bg-white text-stone-700 hover:bg-stone-100",
+                  )
+                }
+              >
+                {({ item: battle }) => (
+                  <>
+                    <p className="text-xs font-semibold">{battle.year}</p>
+                    <p className="truncate text-xs">{battle.name}</p>
+                    <p className="truncate text-[11px] text-stone-500">
+                      {battle.war}
+                    </p>
+                  </>
+                )}
+              </SelectableList>
+            </aside>
+          )}
+
+          <div className="flex min-w-0 flex-1 flex-col justify-end gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <TextTooltip
+                as="h3"
+                text={currentBattle.name}
+                className="min-w-0 truncate text-lg font-semibold"
+              />
+              <button
+                type="button"
+                className="shrink-0 cursor-pointer rounded bg-stone-200 p-1.5 text-sm enabled:hover:bg-stone-300"
+                aria-label="Save pin"
+                title={isSaved ? "Unsave pin" : "Save pin"}
+                onClick={() => onToggleSave(selectedMarker)}
+              >
+                {!isSaved && <BookmarkOutlineIcon className="size-4" />}
+                {isSaved && <BookmarkSolidIcon className="size-4" />}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+              <span className="font-semibold">Year</span>
+              <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
+
+              <span className="font-semibold">Location</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.place}, {currentBattle.country}
+              </span>
+
+              <span className="font-semibold">War</span>
+              <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
+            </div>
+
+            <a
+              className="text-sm text-blue-700"
+              target="_new"
+              href={currentBattle.article}
+            >
+              Wikipedia
+            </a>
+
+            <MapArticlePreview
+              articleTitle={currentBattle.article}
+              showMediaRow={shouldShowMediaRow}
+            />
+          </div>
+        </div>
       </div>
     </Popup>
   );
