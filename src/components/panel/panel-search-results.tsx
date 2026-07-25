@@ -61,79 +61,84 @@ export function PanelSearchResults({
   }
 
   return (
-    <Popover.Root
-      open={isOpen && Boolean(query.trim())}
-      onOpenChange={setIsOpen}
-      modal={false}
-    >
-      <Popover.Anchor asChild>
-        <input
-          type="search"
-          className="w-full rounded bg-stone-700 px-2 py-1"
-          placeholder="Search placename"
-          value={query}
-          onChange={(event) => {
-            const nextQuery = event.target.value;
-            onQueryChange(nextQuery);
-            setIsOpen(Boolean(nextQuery.trim()));
-          }}
-          onFocus={handleInputFocusOrClick}
-          onClick={handleInputFocusOrClick}
-          onKeyDown={handleInputKeyDown}
-        />
-      </Popover.Anchor>
+    <>
+      <span className="text-sm">Placename, address, or coordinates</span>
 
-      <Popover.Portal>
-        <Popover.Content
-          side="bottom"
-          align="start"
-          sideOffset={4}
-          onOpenAutoFocus={(event) => event.preventDefault()}
-          className="z-20 max-h-60 w-(--radix-popover-trigger-width) overflow-y-auto rounded border border-stone-700 bg-stone-800 shadow-lg"
-        >
-          {query.trim().length < PLACE_SEARCH_MIN_CHARS && (
-            <p className="px-2 py-2 text-sm text-stone-300">
-              Type at least {PLACE_SEARCH_MIN_CHARS} characters to search.
-            </p>
-          )}
+      <Popover.Root
+        open={isOpen && Boolean(query.trim())}
+        onOpenChange={setIsOpen}
+        modal={false}
+      >
+        <Popover.Anchor asChild>
+          <input
+            name="place-search"
+            type="search"
+            className="w-full rounded bg-stone-700 px-2 py-1 text-sm leading-7"
+            placeholder="Enter search..."
+            value={query}
+            onChange={(event) => {
+              const nextQuery = event.target.value;
+              onQueryChange(nextQuery);
+              setIsOpen(Boolean(nextQuery.trim()));
+            }}
+            onFocus={handleInputFocusOrClick}
+            onClick={handleInputFocusOrClick}
+            onKeyDown={handleInputKeyDown}
+          />
+        </Popover.Anchor>
 
-          {isSearching && (
-            <p className="px-2 py-2 text-sm text-stone-300">Searching...</p>
-          )}
-
-          {!isSearching &&
-            query.trim().length >= PLACE_SEARCH_MIN_CHARS &&
-            results.length === 0 && (
+        <Popover.Portal>
+          <Popover.Content
+            side="bottom"
+            align="start"
+            sideOffset={4}
+            onOpenAutoFocus={(event) => event.preventDefault()}
+            className="z-20 max-h-60 w-(--radix-popover-trigger-width) overflow-y-auto rounded border border-stone-700 bg-stone-800 shadow-lg"
+          >
+            {query.trim().length < PLACE_SEARCH_MIN_CHARS && (
               <p className="px-2 py-2 text-sm text-stone-300">
-                No matching places found in Europe.
+                Type at least {PLACE_SEARCH_MIN_CHARS} characters to search.
               </p>
             )}
 
-          {!isSearching && (
-            <SelectableList
-              items={results}
-              selectedIndex={selectedResultIndex}
-              onSelectedIndexChange={setSelectedResultIndex}
-              onItemMouseEnter={(_, index) => setSelectedResultIndex(index)}
-              onItemClick={(result) => {
-                onSelectResult(result);
-                setIsOpen(false);
-              }}
-              getItemKey={(result) => result.place_id}
-              enableKeyboardNavigation={false}
-              tabIndex={-1}
-              itemClassName={({ isSelected }) =>
-                clsx(
-                  "w-full px-2 py-2 text-left text-sm text-stone-300 hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
-                  isSelected && "bg-stone-700/70",
-                )
-              }
-            >
-              {({ item: result }) => result.display_name || result.name}
-            </SelectableList>
-          )}
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+            {isSearching && (
+              <p className="px-2 py-2 text-sm text-stone-300">Searching...</p>
+            )}
+
+            {!isSearching &&
+              query.trim().length >= PLACE_SEARCH_MIN_CHARS &&
+              results.length === 0 && (
+                <p className="px-2 py-2 text-sm text-stone-300">
+                  No matching places found in Europe.
+                </p>
+              )}
+
+            {!isSearching && (
+              <SelectableList
+                items={results}
+                selectedIndex={selectedResultIndex}
+                onSelectedIndexChange={setSelectedResultIndex}
+                onItemMouseEnter={(_, index) => setSelectedResultIndex(index)}
+                onItemClick={(result) => {
+                  onSelectResult(result);
+                  setIsOpen(false);
+                }}
+                getItemKey={(result) => result.place_id}
+                enableKeyboardNavigation={false}
+                tabIndex={-1}
+                itemClassName={({ isSelected }) =>
+                  clsx(
+                    "w-full px-2 py-2 text-left text-sm text-stone-300 hover:bg-stone-700/70 focus:bg-stone-700/70 focus:outline-none",
+                    isSelected && "bg-stone-700/70",
+                  )
+                }
+              >
+                {({ item: result }) => result.display_name || result.name}
+              </SelectableList>
+            )}
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+    </>
   );
 }

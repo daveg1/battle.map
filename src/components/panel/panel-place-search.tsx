@@ -62,8 +62,6 @@ export function ControlPanelPlaceSearch({ mapRef }: Props) {
 
   return (
     <form className="flex flex-col gap-2" onSubmit={handlePlaceSearchSubmit}>
-      <span className="text-sm">Placename, address, or coordinates</span>
-
       <PanelSearchResults
         query={query}
         isSearching={isFetching}
