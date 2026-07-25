@@ -10,6 +10,7 @@ import { useMapStore } from "./stores/use-map-store";
 import { useUserSettingsStore } from "./stores/use-user-settings-store";
 import { readMapViewFromUrl } from "./utils/viewer-url-state";
 import { MobileRadiusSelector } from "./components/mobile/mobile-radius-selector";
+import { useIsMobile } from "./hooks/use-is-mobile";
 
 export function App() {
   const mapRef = useRef<MapRef | null>(null);
@@ -29,6 +30,8 @@ export function App() {
   const [isSplashVisible, setIsSplashVisible] = useState(
     () => !splashDismissed,
   );
+
+  const isMobile = useIsMobile();
 
   const {
     savedPins,
@@ -72,17 +75,19 @@ export function App() {
           onShowSplash={() => setIsSplashVisible(true)}
         />
 
-        <ControlPanel
-          mapRef={mapRef}
-          savedPins={savedPins}
-          recentlyAddedPinId={recentlyAddedPinId}
-          recentlyRemovedPinId={recentlyRemovedPinId}
-          onRemoveSavedPin={handleRemoveSavedPin}
-          onSelectSavedPin={handleSelectSavedPin}
-        />
+        {!isMobile && (
+          <ControlPanel
+            mapRef={mapRef}
+            savedPins={savedPins}
+            recentlyAddedPinId={recentlyAddedPinId}
+            recentlyRemovedPinId={recentlyRemovedPinId}
+            onRemoveSavedPin={handleRemoveSavedPin}
+            onSelectSavedPin={handleSelectSavedPin}
+          />
+        )}
       </div>
 
-      <MobileRadiusSelector mapRef={mapRef} />
+      {isMobile && <MobileRadiusSelector mapRef={mapRef} />}
 
       {isSplashVisible && <SplashScreen onDismiss={handleDismissSplash} />}
     </div>
