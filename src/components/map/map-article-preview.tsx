@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useArticlePreview } from "../../hooks/use-article-preview";
+import { Skeleton } from "../ui/skeleton";
 
 interface Props {
   articleTitle: string;
@@ -38,10 +39,8 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
-        {showMediaRow && (
-          <div className="h-32 w-full animate-pulse rounded bg-stone-300/70" />
-        )}
-        <div className="h-20 w-full animate-pulse rounded bg-stone-300/70" />
+        {showMediaRow && <Skeleton className="h-32" />}
+        <Skeleton className="h-20" />
       </div>
     );
   }
