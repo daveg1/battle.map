@@ -113,7 +113,9 @@ export function MapPopup({
 
             <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
               <span className="font-semibold">Year</span>
-              <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.year}
+              </span>
 
               <span className="font-semibold">Location</span>
               <span className="min-w-0 wrap-break-word">
@@ -121,7 +123,9 @@ export function MapPopup({
               </span>
 
               <span className="font-semibold">War</span>
-              <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.war}
+              </span>
             </div>
 
             <a
