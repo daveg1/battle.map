@@ -132,8 +132,7 @@ export function MapView({
         onPress: clearSelectedMarker,
       },
       {
-        key: "Enter",
-        altKey: true,
+        key: "f",
         enabled: Boolean(radius.point),
         onPress: fitRadiusToScreen,
       },

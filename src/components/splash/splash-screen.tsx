@@ -69,7 +69,7 @@ export function SplashScreen({ onDismiss }: Props) {
           <div className="rounded-xl bg-white/5 p-4">
             <p className="font-semibold">3. Use shortcuts</p>
             <p className="mt-1 leading-6 text-stone-300">
-              <Key>Alt+Enter</Key> fits the radius. <Key>Alt+C</Key> clears it.{" "}
+              <Key>F</Key> fits the radius. <Key>Alt+C</Key> clears it.{" "}
               <Key>Escape</Key> closes popups.
             </p>
           </div>
