@@ -24,14 +24,14 @@ export function ControlPanel({
   onSelectSavedPin,
 }: Props) {
   return (
-    <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden bg-stone-800 p-4 text-white">
+    <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden overflow-y-auto bg-stone-800 p-4 text-white">
       <ControlPanelLogo />
 
       <ControlPanelSection title="Search">
         <ControlPanelSearchArea mapRef={mapRef} />
       </ControlPanelSection>
 
-      <ControlPanelSection title="Saved pins" className="flex min-h-0 flex-1 flex-col">
+      <ControlPanelSection title="Saved pins" className="flex flex-1 flex-col">
         <ControlPanelSavedPins
           savedPins={savedPins}
           recentlyAddedPinId={recentlyAddedPinId}

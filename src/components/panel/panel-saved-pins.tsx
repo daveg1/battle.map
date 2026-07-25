@@ -45,8 +45,9 @@ export function ControlPanelSavedPins({
       {savedPins.map((pin) => (
         <div
           key={pin.id}
+          tabIndex={0}
           className={clsx(
-            "group cursor-pointer rounded px-3 py-2 select-none hover:bg-stone-700/40",
+            "group cursor-pointer rounded px-3 py-2 select-none focus-within:bg-stone-700/40 hover:bg-stone-700/40 focus:outline-none",
             "transition-opacity duration-300",
             (pin.id === recentlyAddedPinId && pin.id !== revealedPinId) ||
               pin.id === recentlyRemovedPinId
@@ -63,7 +64,7 @@ export function ControlPanelSavedPins({
 
             <button
               type="button"
-              className="cursor-pointer rounded p-1 opacity-0 group-hover:opacity-100 hover:bg-stone-600/60"
+              className="cursor-pointer rounded p-1 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-stone-600/60 focus:bg-stone-600/60 focus:opacity-100 focus:outline-none"
               aria-label="Remove saved pin"
               onClick={(event) => {
                 event.stopPropagation();
