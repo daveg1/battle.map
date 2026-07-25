@@ -28,6 +28,7 @@ import {
 import type { BattleMarkerItem } from "../../types/common";
 import { useMapStore } from "../../stores/use-map-store";
 import { useScreenSize } from "../../hooks/use-screen-size";
+import { SearchControl } from "../control/control-search";
 
 interface MoveEndEvent {
   viewState: {
@@ -170,13 +171,16 @@ export function MapView({
 
       <GeolocateControl position="top-right" />
       <NavigationControl position="top-right" />
+      <ScaleControl position="bottom-left" />
+
       <SettingsControl
         mapSource={mapSource}
         onToggleMapSource={handleToggleMapSource}
       />
       <SplashControl onShowSplash={onShowSplash} />
       <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radius.point} />
-      <ScaleControl />
+      <SearchControl mapRef={mapRef} />
+
       <AttributionControl compact={true} />
 
       {radius.point && <MapRadius point={radius.point} size={radius.size} />}
