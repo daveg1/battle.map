@@ -24,6 +24,8 @@ export function ControlPanel({
   onRemoveSavedPin,
   onSelectSavedPin,
 }: Props) {
+  return null;
+
   return (
     <div className="flex h-screen w-100 flex-col gap-4 overflow-hidden overflow-y-auto bg-stone-800 p-2 text-white lg:p-4">
       <ControlPanelLogo />
