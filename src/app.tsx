@@ -9,6 +9,7 @@ import { DEFAULT_MAP_VIEW } from "./types/viewer-state";
 import { useMapStore } from "./stores/use-map-store";
 import { useUserSettingsStore } from "./stores/use-user-settings-store";
 import { readMapViewFromUrl } from "./utils/viewer-url-state";
+import { MobileRadiusSelector } from "./components/mobile/mobile-radius-selector";
 
 export function App() {
   const mapRef = useRef<MapRef | null>(null);
@@ -80,6 +81,8 @@ export function App() {
           onSelectSavedPin={handleSelectSavedPin}
         />
       </div>
+
+      <MobileRadiusSelector mapRef={mapRef} />
 
       {isSplashVisible && <SplashScreen onDismiss={handleDismissSplash} />}
     </div>
