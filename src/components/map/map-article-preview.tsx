@@ -7,9 +7,14 @@ import clsx from "clsx";
 interface Props {
   articleTitle: string;
   showMediaRow: boolean;
+  isMobile?: boolean;
 }
 
-export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
+export function MapArticlePreview({
+  articleTitle,
+  showMediaRow,
+  isMobile = false,
+}: Props) {
   const { data: preview, isLoading, isError } = useArticlePreview(articleTitle);
   const [isImageOverlayOpen, setIsImageOverlayOpen] = useState(false);
 
@@ -41,9 +46,15 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
     return (
       <div className="flex flex-col gap-2">
         {showMediaRow && <Skeleton className="h-32" />}
-        <Skeleton className="h-20" />
+        <Skeleton className={isMobile ? "h-12" : "h-20"} />
       </div>
     );
+  }
+
+  function handleThumbnailClick() {
+    if (!isMobile) {
+      setIsImageOverlayOpen(true);
+    }
   }
 
   if (isError) {
@@ -74,7 +85,7 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
           <button
             type="button"
             className="group relative h-full w-full cursor-zoom-in rounded"
-            onClick={() => setIsImageOverlayOpen(true)}
+            onClick={() => handleThumbnailClick()}
             aria-label={`Expand image for ${preview.title}`}
           >
             <img
@@ -99,7 +110,7 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
         )}
       </div>
 
-      <p className="line-clamp-5 h-20 text-xs text-stone-700">
+      <p className="line-clamp-3 h-12 text-xs text-stone-700 lg:line-clamp-5 lg:h-20">
         {preview.extract}
       </p>
 
