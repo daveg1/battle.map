@@ -30,7 +30,6 @@ import type { BattleMarkerItem } from "../../types/common";
 import { useMapStore } from "../../stores/use-map-store";
 import { useScreenSize } from "../../hooks/use-screen-size";
 import { SearchControl } from "../control/control-search";
-import { toast } from "../../stores/use-toast-store";
 
 interface MoveEndEvent {
   viewState: {
@@ -159,7 +158,6 @@ export function MapView({
           point: event.lngLat,
         }));
         setIsPlacingRadius(false);
-        toast.success("Radius placed");
         return;
       }
 
