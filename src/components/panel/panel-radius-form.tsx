@@ -53,7 +53,7 @@ export function ControlPanelRadiusForm() {
 
       <button
         type="button"
-        className="w-full cursor-pointer rounded-lg bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full cursor-pointer rounded-sm bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/50 disabled:cursor-not-allowed disabled:opacity-50 lg:rounded-lg"
         disabled={!hasRadius}
         onClick={handleClearRadius}
       >
