@@ -38,6 +38,32 @@
     pointer-events: none !important;
   }
 
+  @media (max-width: 1023px) {
+    .fullscreen-mobile-popup.maplibregl-popup {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, calc(-50% - 2rem)) !important;
+      max-width: none !important;
+      z-index: 9999 !important;
+    }
+
+    .fullscreen-mobile-popup .maplibregl-popup-content {
+      width: clamp(0px, 50vw, 360px);
+      height: 80vh;
+      max-width: none !important;
+      border-radius: 0.5rem;
+    }
+
+    .fullscreen-mobile-popup-wide .maplibregl-popup-content {
+      width: clamp(0px, 72vw, 520px);
+    }
+
+    .fullscreen-mobile-popup .maplibregl-popup-tip {
+      display: none;
+    }
+  }
+
   :root {
     --anim-arrow-delay: 900ms;
     --anim-arrow-time: 280ms;

@@ -8,6 +8,7 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useCallback, type RefObject } from "react";
+import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { useAltDragRadius } from "../../hooks/use-alt-drag-radius";
 import { useBattleMarkers } from "../../hooks/use-battle-markers";
 import { useMapRuntime } from "../../hooks/use-map-runtime";
@@ -28,6 +29,7 @@ import {
 import type { BattleMarkerItem } from "../../types/common";
 import { useMapStore } from "../../stores/use-map-store";
 import { useScreenSize } from "../../hooks/use-screen-size";
+import { SearchControl } from "../control/control-search";
 
 interface MoveEndEvent {
   viewState: {
@@ -63,6 +65,8 @@ export function MapView({
   const savedPins = useMapStore((state) => state.savedPins);
   const selectedMarker = useMapStore((state) => state.selectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const isPlacingRadius = useMapStore((state) => state.isPlacingRadius);
+  const setIsPlacingRadius = useMapStore((state) => state.setIsPlacingRadius);
 
   const fitRadiusToScreen = useCallback(() => {
     if (!radius.point) {
@@ -132,8 +136,7 @@ export function MapView({
         onPress: clearSelectedMarker,
       },
       {
-        key: "Enter",
-        altKey: true,
+        key: "f",
         enabled: Boolean(radius.point),
         onPress: fitRadiusToScreen,
       },
@@ -146,6 +149,22 @@ export function MapView({
       },
     ],
   });
+
+  const handleClick = useCallback(
+    (event: MapLayerMouseEvent) => {
+      if (isPlacingRadius) {
+        setRadius((current) => ({
+          ...current,
+          point: event.lngLat,
+        }));
+        setIsPlacingRadius(false);
+        return;
+      }
+
+      handleMapClick(event);
+    },
+    [isPlacingRadius, setRadius, setIsPlacingRadius, handleMapClick],
+  );
 
   return (
     <Map
@@ -164,20 +183,23 @@ export function MapView({
       onMoveEnd={onMoveEnd}
       onLoad={handleMapLoad}
       onMouseDown={handleMapMouseDown}
-      onClick={handleMapClick}
-      cursor={isAltPressed ? "crosshair" : ""}
+      onClick={handleClick}
+      cursor={isAltPressed || isPlacingRadius ? "crosshair" : ""}
     >
       <MapSource source={mapSource} />
 
       <GeolocateControl position="top-right" />
       <NavigationControl position="top-right" />
+      <ScaleControl position="bottom-left" />
+
       <SettingsControl
         mapSource={mapSource}
         onToggleMapSource={handleToggleMapSource}
       />
       <SplashControl onShowSplash={onShowSplash} />
       <FitRadiusControl onFit={fitRadiusToScreen} disabled={!radius.point} />
-      <ScaleControl />
+      <SearchControl mapRef={mapRef} />
+
       <AttributionControl compact={true} />
 
       {radius.point && <MapRadius point={radius.point} size={radius.size} />}

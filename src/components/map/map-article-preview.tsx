@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useArticlePreview } from "../../hooks/use-article-preview";
+import { Skeleton } from "../ui/skeleton";
+import clsx from "clsx";
 
 interface Props {
   articleTitle: string;
   showMediaRow: boolean;
+  isMobile?: boolean;
 }
 
-export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
+export function MapArticlePreview({
+  articleTitle,
+  showMediaRow,
+  isMobile = false,
+}: Props) {
   const { data: preview, isLoading, isError } = useArticlePreview(articleTitle);
   const [isImageOverlayOpen, setIsImageOverlayOpen] = useState(false);
 
@@ -38,12 +45,16 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
-        {showMediaRow && (
-          <div className="h-32 w-full animate-pulse rounded bg-stone-300/70" />
-        )}
-        <div className="h-20 w-full animate-pulse rounded bg-stone-300/70" />
+        {showMediaRow && <Skeleton className="h-32" />}
+        <Skeleton className={isMobile ? "h-12" : "h-20"} />
       </div>
     );
+  }
+
+  function handleThumbnailClick() {
+    if (!isMobile) {
+      setIsImageOverlayOpen(true);
+    }
   }
 
   if (isError) {
@@ -60,21 +71,21 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
     /\/\d+px-/,
     "/960px-",
   );
-  const hasThumbnail = Boolean(preview.thumbnail);
-  const isMediaRowVisible = showMediaRow || hasThumbnail;
+  const isMediaRowVisible = showMediaRow || !!preview.thumbnail;
 
   return (
     <div className="flex flex-col gap-2">
       <div
-        className={`w-full overflow-hidden transition-all duration-300 ease-in-out ${
-          isMediaRowVisible ? "h-32 opacity-100" : "h-0 opacity-0"
-        }`}
+        className={clsx(
+          `w-full overflow-hidden transition-all duration-300 ease-in-out`,
+          isMediaRowVisible ? "h-32 opacity-100" : "h-0 opacity-0",
+        )}
       >
         {preview.thumbnail ? (
           <button
             type="button"
             className="group relative h-full w-full cursor-zoom-in rounded"
-            onClick={() => setIsImageOverlayOpen(true)}
+            onClick={() => handleThumbnailClick()}
             aria-label={`Expand image for ${preview.title}`}
           >
             <img
@@ -87,6 +98,7 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
               decoding="async"
               draggable={false}
             />
+
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center rounded bg-black/0 text-sm font-semibold text-white opacity-0 transition-all duration-200 group-hover:bg-black/60 group-hover:opacity-100">
               Click to expand
             </span>
@@ -97,7 +109,8 @@ export function MapArticlePreview({ articleTitle, showMediaRow }: Props) {
           </div>
         )}
       </div>
-      <p className="line-clamp-5 h-20 text-xs text-stone-700">
+
+      <p className="line-clamp-3 h-12 text-xs text-stone-700 lg:line-clamp-5 lg:h-20">
         {preview.extract}
       </p>
 

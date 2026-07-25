@@ -8,9 +8,12 @@ export function ControlPanelRadiusForm() {
   const hasRadius = Boolean(radius.point);
 
   function handleRadiusUpdate(event: ChangeEvent<HTMLInputElement>) {
+    // TODO: clamp to 0,1000
+    const size = Number(event.target.valueAsNumber);
+
     setRadius((current) => ({
       ...current,
-      size: event.target.valueAsNumber,
+      size,
     }));
   }
 
@@ -24,29 +27,33 @@ export function ControlPanelRadiusForm() {
 
   return (
     <>
-      <div className="flex items-baseline justify-between">
-        <h4 className="text-sm">Radius (km)</h4>
+      <div className="flex flex-col gap-2 py-2">
+        <h4 className="text-sm">Search radius (km)</h4>
 
-        <input
-          type="number"
-          className="w-16 rounded bg-stone-700 px-2 py-1"
-          value={radius.size}
-          onChange={handleRadiusUpdate}
-        />
+        <div className="flex items-center gap-2">
+          <input
+            type="range"
+            className="w-full"
+            min={1}
+            max={1000}
+            value={radius.size}
+            onChange={handleRadiusUpdate}
+          />
+
+          <input
+            type="number"
+            className="w-[4ch] rounded text-right leading-5 lg:w-[6ch]"
+            value={radius.size}
+            min={1}
+            max={1000}
+            onChange={handleRadiusUpdate}
+          />
+        </div>
       </div>
-
-      <input
-        type="range"
-        className="mt-2 w-full"
-        min={1}
-        max={1000}
-        value={radius.size}
-        onChange={handleRadiusUpdate}
-      />
 
       <button
         type="button"
-        className="w-full cursor-pointer rounded-lg bg-stone-700 py-2 enabled:hover:bg-stone-700/50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="w-full cursor-pointer rounded-sm bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/50 disabled:cursor-not-allowed disabled:opacity-50 lg:rounded-lg"
         disabled={!hasRadius}
         onClick={handleClearRadius}
       >

@@ -27,7 +27,7 @@ export function FitRadiusControl({ disabled, onFit }: Props) {
         onClick={onFit}
         disabled={disabled}
         aria-label="Fit radius to screen"
-        title="Fit radius to screen (Alt+Enter)"
+        title="Fit radius to screen (F)"
       >
         <ArrowsPointingOutIcon className="size-4" />
       </button>

@@ -8,6 +8,7 @@ import { MapArticlePreview } from "./map-article-preview";
 import { TextTooltip } from "../ui/text-tooltip";
 import { SelectableList } from "../ui/selectable-list";
 import { useArticlePreviewMediaRow } from "../../hooks/use-article-preview";
+import { useIsMobile } from "../../hooks/use-is-mobile";
 
 interface Props {
   selectedMarker: BattleMarkerItem | null;
@@ -24,28 +25,37 @@ export function MapPopup({
   onToggleSave,
   onClose,
 }: Props) {
-  if (!selectedMarker) return null;
-
+  const isMobile = useIsMobile();
   const [battleIndex, setBattleIndex] = useState(0);
-  const battleCount = selectedMarker.battles.length;
-  if (battleCount === 0) return null;
-
-  const clampedBattleIndex = Math.min(battleIndex, battleCount - 1);
-  const currentBattle = selectedMarker.battles[clampedBattleIndex];
+  const battles = selectedMarker?.battles ?? [];
+  const battleCount = battles.length;
+  const clampedBattleIndex = Math.min(
+    battleIndex,
+    Math.max(0, battleCount - 1),
+  );
+  const currentBattle = battles[clampedBattleIndex];
   const { shouldShowMediaRow } = useArticlePreviewMediaRow(
-    selectedMarker.battles.map((battle) => battle.article),
+    battles.map((battle) => battle.article),
   );
 
   useEffect(() => {
     setBattleIndex(0);
-  }, [selectedMarker.id]);
+  }, [selectedMarker?.id]);
+
+  if (!selectedMarker || battleCount === 0 || !currentBattle) {
+    return null;
+  }
 
   return (
     <Popup
       anchor="bottom"
       longitude={Number(selectedMarker.coords.lng)}
       latitude={Number(selectedMarker.coords.lat)}
-      className={clsx(disabled && "is-zooming")}
+      className={clsx(
+        disabled && "is-zooming",
+        isMobile && "fullscreen-mobile-popup",
+        isMobile && battleCount > 1 && "fullscreen-mobile-popup-wide",
+      )}
       maxWidth="none"
       offset={24}
       onClose={onClose}
@@ -55,21 +65,36 @@ export function MapPopup({
     >
       <div
         className={clsx(
-          "flex max-w-[84vw] flex-col gap-3",
-          battleCount > 1 ? "w-136" : "w-70",
+          "flex flex-col gap-3",
+          isMobile
+            ? "h-full w-full p-4"
+            : clsx("max-w-[84vw]", battleCount > 1 ? "w-136" : "w-70"),
         )}
       >
-        <div className="flex min-h-0 gap-3">
+        <div
+          className={clsx(
+            "flex min-h-0 gap-3",
+            isMobile &&
+              (battleCount > 1 ? "h-full flex-row" : "h-full flex-col"),
+          )}
+        >
           {battleCount > 1 && (
-            <aside className="w-42 shrink-0">
+            <aside className={clsx("w-42 shrink-0", isMobile && "min-h-0")}>
               <SelectableList
-                items={selectedMarker.battles}
+                items={battles}
                 selectedIndex={clampedBattleIndex}
                 onSelectedIndexChange={setBattleIndex}
                 getItemKey={(battle, index) =>
                   `${battle.name}-${battle.year}-${index}`
                 }
-                className="max-h-85 space-y-1 overflow-y-auto pr-1"
+                className={clsx(
+                  "space-y-1 overflow-y-auto",
+                  isMobile && battleCount > 1
+                    ? "max-h-full pr-1"
+                    : isMobile
+                      ? "max-h-32"
+                      : "max-h-85 pr-1",
+                )}
                 itemClassName={({ isSelected }) =>
                   clsx(
                     "w-full rounded border px-2 py-1.5 text-left",
@@ -92,7 +117,12 @@ export function MapPopup({
             </aside>
           )}
 
-          <div className="flex min-w-0 flex-1 flex-col justify-end gap-2">
+          <div
+            className={clsx(
+              "flex min-w-0 flex-1 flex-col gap-2",
+              isMobile ? "overflow-y-auto" : "justify-end",
+            )}
+          >
             <div className="flex items-center justify-between gap-2">
               <TextTooltip
                 as="h3"
@@ -113,7 +143,9 @@ export function MapPopup({
 
             <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
               <span className="font-semibold">Year</span>
-              <span className="min-w-0 wrap-break-word">{currentBattle.year}</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.year}
+              </span>
 
               <span className="font-semibold">Location</span>
               <span className="min-w-0 wrap-break-word">
@@ -121,7 +153,9 @@ export function MapPopup({
               </span>
 
               <span className="font-semibold">War</span>
-              <span className="min-w-0 wrap-break-word">{currentBattle.war}</span>
+              <span className="min-w-0 wrap-break-word">
+                {currentBattle.war}
+              </span>
             </div>
 
             <a
@@ -135,6 +169,7 @@ export function MapPopup({
             <MapArticlePreview
               articleTitle={currentBattle.article}
               showMediaRow={shouldShowMediaRow}
+              isMobile={isMobile}
             />
           </div>
         </div>
