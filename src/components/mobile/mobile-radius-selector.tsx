@@ -3,13 +3,15 @@ import {
   ArrowsPointingOutIcon,
   NoSymbolIcon,
 } from "@heroicons/react/24/outline";
-import type { ChangeEvent } from "react";
+import { useDebounce } from "@uidotdev/usehooks";
+import { type ChangeEvent, useCallback, useEffect } from "react";
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { useMapStore } from "../../stores/use-map-store";
 
 const MIN_RADIUS_KM = 1;
 const MAX_RADIUS_KM = 1000;
+const FIT_TO_VIEW_DEBOUNCE_MS = 200;
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -20,6 +22,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
   const setRadius = useMapStore((state) => state.setRadius);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
   const hasRadius = Boolean(radius.point);
+  const debouncedRadiusSize = useDebounce(radius.size, FIT_TO_VIEW_DEBOUNCE_MS);
 
   function handleRadiusUpdate(event: ChangeEvent<HTMLInputElement>) {
     const nextSize = Number(event.target.valueAsNumber);
@@ -39,44 +42,55 @@ export function MobileRadiusSelector({ mapRef }: Props) {
     clearSelectedMarker();
   }
 
+  const fitRadiusToView = useCallback(
+    (radiusSize: number) => {
+      if (!radius.point) {
+        return;
+      }
+
+      const map = mapRef.current;
+      if (!map) {
+        return;
+      }
+
+      const circle = turf.circle(
+        [radius.point.lng, radius.point.lat],
+        radiusSize,
+        {
+          steps: 64,
+          units: "kilometers",
+        },
+      );
+      const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
+
+      map.fitBounds(
+        [
+          [minLng, minLat],
+          [maxLng, maxLat],
+        ],
+        {
+          padding: 40,
+          duration: 600,
+        },
+      );
+    },
+    [mapRef, radius.point],
+  );
+
   function handleFitToView() {
-    if (!radius.point) {
-      return;
-    }
-
-    const map = mapRef.current;
-    if (!map) {
-      return;
-    }
-
-    const circle = turf.circle(
-      [radius.point.lng, radius.point.lat],
-      radius.size,
-      {
-        steps: 64,
-        units: "kilometers",
-      },
-    );
-    const [minLng, minLat, maxLng, maxLat] = turf.bbox(circle);
-
-    map.fitBounds(
-      [
-        [minLng, minLat],
-        [maxLng, maxLat],
-      ],
-      {
-        padding: 40,
-        duration: 600,
-      },
-    );
+    fitRadiusToView(radius.size);
   }
 
+  useEffect(() => {
+    fitRadiusToView(debouncedRadiusSize);
+  }, [debouncedRadiusSize, fitRadiusToView]);
+
   return (
-    <aside className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-3 text-white shadow-lg backdrop-blur-sm">
-      <section className="flex gap-4">
+    <aside className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
+      <section className="flex items-center gap-4">
         <div className="flex shrink-0 flex-col">
-          <span className="text-sm font-medium">Radius</span>
-          <span className="text-sm tabular-nums">
+          <span className="text-xs font-medium">Radius</span>
+          <span className="text-xs tabular-nums">
             {Math.round(radius.size)} km
           </span>
         </div>
