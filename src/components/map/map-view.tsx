@@ -8,6 +8,7 @@ import {
   type MapRef,
 } from "react-map-gl/maplibre";
 import { useCallback, type RefObject } from "react";
+import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { useAltDragRadius } from "../../hooks/use-alt-drag-radius";
 import { useBattleMarkers } from "../../hooks/use-battle-markers";
 import { useMapRuntime } from "../../hooks/use-map-runtime";
@@ -29,6 +30,7 @@ import type { BattleMarkerItem } from "../../types/common";
 import { useMapStore } from "../../stores/use-map-store";
 import { useScreenSize } from "../../hooks/use-screen-size";
 import { SearchControl } from "../control/control-search";
+import { toast } from "../../stores/use-toast-store";
 
 interface MoveEndEvent {
   viewState: {
@@ -64,6 +66,8 @@ export function MapView({
   const savedPins = useMapStore((state) => state.savedPins);
   const selectedMarker = useMapStore((state) => state.selectedMarker);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const isPlacingRadius = useMapStore((state) => state.isPlacingRadius);
+  const setIsPlacingRadius = useMapStore((state) => state.setIsPlacingRadius);
 
   const fitRadiusToScreen = useCallback(() => {
     if (!radius.point) {
@@ -147,6 +151,23 @@ export function MapView({
     ],
   });
 
+  const handleClick = useCallback(
+    (event: MapLayerMouseEvent) => {
+      if (isPlacingRadius) {
+        setRadius((current) => ({
+          ...current,
+          point: event.lngLat,
+        }));
+        setIsPlacingRadius(false);
+        toast.success("Radius placed");
+        return;
+      }
+
+      handleMapClick(event);
+    },
+    [isPlacingRadius, setRadius, setIsPlacingRadius, handleMapClick],
+  );
+
   return (
     <Map
       ref={mapRef}
@@ -164,8 +185,8 @@ export function MapView({
       onMoveEnd={onMoveEnd}
       onLoad={handleMapLoad}
       onMouseDown={handleMapMouseDown}
-      onClick={handleMapClick}
-      cursor={isAltPressed ? "crosshair" : ""}
+      onClick={handleClick}
+      cursor={isAltPressed || isPlacingRadius ? "crosshair" : ""}
     >
       <MapSource source={mapSource} />
 

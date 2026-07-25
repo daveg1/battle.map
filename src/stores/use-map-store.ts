@@ -10,6 +10,7 @@ interface MapStoreState {
   radius: SessionRadiusState;
   savedPins: SavedPinItem[];
   selectedMarker: BattleMarkerItem | null;
+  isPlacingRadius: boolean;
 }
 
 interface MapStoreActions {
@@ -17,6 +18,7 @@ interface MapStoreActions {
   setSavedPins: Dispatch<SetStateAction<SavedPinItem[]>>;
   setSelectedMarker: Dispatch<SetStateAction<BattleMarkerItem | null>>;
   clearSelectedMarker(): void;
+  setIsPlacingRadius(value: boolean): void;
 }
 
 type MapStore = MapStoreState & MapStoreActions;
@@ -25,6 +27,7 @@ export const useMapStore = create<MapStore>((set) => ({
   radius: readRadiusFromUrl() ?? DEFAULT_RADIUS_STATE,
   savedPins: readSavedPinsFromStorage(),
   selectedMarker: null,
+  isPlacingRadius: false,
   setRadius: (next) =>
     set((state) => ({
       radius:
@@ -54,6 +57,7 @@ export const useMapStore = create<MapStore>((set) => ({
           : next,
     })),
   clearSelectedMarker: () => set({ selectedMarker: null }),
+  setIsPlacingRadius: (value) => set({ isPlacingRadius: value }),
 }));
 
 function readSavedPinsFromStorage(): SavedPinItem[] {

@@ -1,63 +1,10 @@
-import { Toast } from "radix-ui";
+﻿import { Toast } from "radix-ui";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import { create } from "zustand";
+import { useToastStore } from "../../stores/use-toast-store";
+import type { ToastItem } from "../../stores/use-toast-store";
 
-type ToastType = "default" | "success" | "error";
-
-interface ToastItem {
-  id: string;
-  message: string;
-  description?: string;
-  type: ToastType;
-  duration: number;
-}
-
-interface ToastStore {
-  toasts: ToastItem[];
-  add(item: Omit<ToastItem, "id">): void;
-  remove(id: string): void;
-}
-
-const useToastStore = create<ToastStore>((set) => ({
-  toasts: [],
-  add: (item) =>
-    set((state) => ({
-      toasts: [...state.toasts, { ...item, id: crypto.randomUUID() }],
-    })),
-  remove: (id) =>
-    set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== id),
-    })),
-}));
-
-export const toast = {
-  show(
-    message: string,
-    options?: { description?: string; type?: ToastType; duration?: number },
-  ) {
-    useToastStore.getState().add({
-      message,
-      description: options?.description,
-      type: options?.type ?? "default",
-      duration: options?.duration ?? 4000,
-    });
-  },
-  success(
-    message: string,
-    options?: { description?: string; duration?: number },
-  ) {
-    toast.show(message, { ...options, type: "success" });
-  },
-  error(
-    message: string,
-    options?: { description?: string; duration?: number },
-  ) {
-    toast.show(message, { ...options, type: "error" });
-  },
-};
-
-const typeStyles: Record<ToastType, string> = {
+const typeStyles: Record<ToastItem["type"], string> = {
   default: "border-stone-600 bg-stone-800",
   success: "border-emerald-700 bg-emerald-900/80",
   error: "border-rose-700 bg-rose-900/80",
@@ -106,7 +53,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         </Toast.Root>
       ))}
 
-      <Toast.Viewport className="fixed right-4 bottom-4 z-9999 flex w-80 flex-col gap-2 outline-none" />
+      <Toast.Viewport className="fixed right-4 bottom-4 z-[9999] flex w-80 flex-col gap-2 outline-none" />
     </Toast.Provider>
   );
 }

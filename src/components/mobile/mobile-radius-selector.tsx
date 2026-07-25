@@ -1,6 +1,7 @@
 import * as turf from "@turf/turf";
 import {
   ArrowsPointingOutIcon,
+  MapPinIcon,
   NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { useDebounce } from "@uidotdev/usehooks";
@@ -21,6 +22,8 @@ export function MobileRadiusSelector({ mapRef }: Props) {
   const radius = useMapStore((state) => state.radius);
   const setRadius = useMapStore((state) => state.setRadius);
   const clearSelectedMarker = useMapStore((state) => state.clearSelectedMarker);
+  const isPlacingRadius = useMapStore((state) => state.isPlacingRadius);
+  const setIsPlacingRadius = useMapStore((state) => state.setIsPlacingRadius);
   const hasRadius = Boolean(radius.point);
   const debouncedRadiusSize = useDebounce(radius.size, FIT_TO_VIEW_DEBOUNCE_MS);
 
@@ -87,7 +90,21 @@ export function MobileRadiusSelector({ mapRef }: Props) {
 
   return (
     <aside className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
-      <section className="flex items-center gap-4">
+      <button
+        type="button"
+        className="grid w-12 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        onClick={() => {
+          const next = !isPlacingRadius;
+          setIsPlacingRadius(next);
+        }}
+        aria-label={isPlacingRadius ? "Cancel placing radius" : "Place radius on map"}
+        title={isPlacingRadius ? "Cancel placing radius" : "Place radius on map"}
+        style={isPlacingRadius ? { backgroundColor: "rgb(68 64 60 / 0.9)" } : undefined}
+      >
+        <MapPinIcon className="size-5" />
+      </button>
+
+      <section className="flex items-center gap-4 transition-opacity" style={isPlacingRadius ? { opacity: 0.4, pointerEvents: "none" } : undefined}>
         <div className="flex shrink-0 flex-col">
           <span className="text-xs font-medium">Radius</span>
           <span className="text-xs tabular-nums">
@@ -103,6 +120,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
           value={radius.size}
           onChange={handleRadiusUpdate}
           aria-label="Search radius in kilometers"
+          disabled={isPlacingRadius}
         />
       </section>
 
@@ -110,7 +128,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
         type="button"
         className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={handleFitToView}
-        disabled={!hasRadius}
+        disabled={!hasRadius || isPlacingRadius}
         aria-label="Fit radius to view"
         title="Fit radius to view"
       >
@@ -121,7 +139,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
         type="button"
         className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={handleClearRadius}
-        disabled={!hasRadius}
+        disabled={!hasRadius || isPlacingRadius}
         aria-label="Clear radius"
         title="Clear radius"
       >
