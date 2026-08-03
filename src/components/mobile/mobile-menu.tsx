@@ -37,17 +37,11 @@ export function MobileMenu({ mapRef }: Props) {
     const nextSize = Number(event.target.valueAsNumber);
     const size = Math.min(MAX_RADIUS_KM, Math.max(MIN_RADIUS_KM, nextSize));
 
-    setRadius((current) => ({
-      ...current,
-      size,
-    }));
+    setRadius((current) => ({ ...current, size }));
   }
 
   function handleClearRadius() {
-    setRadius((current) => ({
-      ...current,
-      point: null,
-    }));
+    setRadius((current) => ({ ...current, point: null }));
     clearSelectedMarker();
   }
 
