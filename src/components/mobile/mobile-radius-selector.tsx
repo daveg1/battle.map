@@ -1,11 +1,13 @@
 import * as turf from "@turf/turf";
 import {
   ArrowsPointingOutIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
   CursorArrowRaysIcon,
   NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { useDebounce } from "@uidotdev/usehooks";
-import { type ChangeEvent, useCallback, useEffect } from "react";
+import { type ChangeEvent, useCallback, useEffect, useState } from "react";
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { useMapStore } from "../../stores/use-map-store";
@@ -25,6 +27,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
   const setIsPlacingRadius = useMapStore((state) => state.setIsPlacingRadius);
   const hasRadius = Boolean(radius.point);
   const debouncedRadiusSize = useDebounce(radius.size, FIT_TO_VIEW_DEBOUNCE_MS);
+  const [isRadiusSliderOpen, setIsRadiusSliderOpen] = useState(false);
 
   function handleRadiusUpdate(event: ChangeEvent<HTMLInputElement>) {
     const nextSize = Number(event.target.valueAsNumber);
@@ -88,75 +91,89 @@ export function MobileRadiusSelector({ mapRef }: Props) {
   }, [debouncedRadiusSize, fitRadiusToView]);
 
   return (
-    <aside className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
-      <button
-        type="button"
-        className="grid w-10 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
-        onClick={() => {
-          const next = !isPlacingRadius;
-          setIsPlacingRadius(next);
-        }}
-        aria-label={
-          isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
-        }
-        title={
-          isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
-        }
-        style={
-          isPlacingRadius
-            ? { backgroundColor: "rgb(68 64 60 / 0.9)" }
-            : undefined
-        }
-      >
-        <CursorArrowRaysIcon className="size-5" />
-      </button>
+    <div className="pointer-events-none absolute inset-x-3 bottom-3 z-20 flex flex-col items-center gap-2">
+      {isRadiusSliderOpen && (
+        <section
+          id="mobile-radius-slider"
+          className="pointer-events-auto w-full max-w-md rounded-lg border border-stone-600 bg-stone-900/90 px-4 py-3 text-white shadow-lg backdrop-blur-sm"
+        >
+          <input
+            type="range"
+            className="w-full"
+            min={MIN_RADIUS_KM}
+            max={MAX_RADIUS_KM}
+            value={radius.size}
+            onChange={handleRadiusUpdate}
+            disabled={isPlacingRadius}
+          />
+        </section>
+      )}
 
-      <section
-        className="flex items-center gap-4 transition-opacity"
-        style={
-          isPlacingRadius ? { opacity: 0.4, pointerEvents: "none" } : undefined
-        }
-      >
-        <div className="flex shrink-0 flex-col">
-          <span className="text-xs font-medium">Radius</span>
-          <span className="text-xs tabular-nums">
-            {Math.round(radius.size)} km
-          </span>
-        </div>
+      <aside className="pointer-events-auto mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
+        <button
+          type="button"
+          className="grid w-10 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => {
+            const next = !isPlacingRadius;
+            setIsPlacingRadius(next);
+          }}
+          title={
+            isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
+          }
+          style={
+            isPlacingRadius
+              ? { backgroundColor: "rgb(68 64 60 / 0.9)" }
+              : undefined
+          }
+        >
+          <CursorArrowRaysIcon className="size-5" />
+        </button>
 
-        <input
-          type="range"
-          className="w-full basis-50"
-          min={MIN_RADIUS_KM}
-          max={MAX_RADIUS_KM}
-          value={radius.size}
-          onChange={handleRadiusUpdate}
-          aria-label="Search radius in kilometers"
+        <button
+          type="button"
+          className="flex items-stretch overflow-hidden rounded text-left text-xs enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={() => {
+            setIsRadiusSliderOpen((current) => !current);
+          }}
+          aria-expanded={isRadiusSliderOpen}
+          aria-controls="mobile-radius-slider"
           disabled={isPlacingRadius}
-        />
-      </section>
+        >
+          <span className="px-3 py-2">
+            <span className="block font-medium">Radius</span>
+            <span className="block tabular-nums">
+              {Math.round(radius.size)} km
+            </span>
+          </span>
+          <span className="grid place-items-center border-l border-stone-700/70 px-2">
+            {isRadiusSliderOpen ? (
+              <ChevronUpIcon className="size-4" />
+            ) : (
+              <ChevronDownIcon className="size-4" />
+            )}
+          </span>
+        </button>
 
-      <button
-        type="button"
-        className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
-        onClick={handleFitToView}
-        disabled={!hasRadius || isPlacingRadius}
-        aria-label="Fit radius to view"
-        title="Fit radius to view"
-      >
-        <ArrowsPointingOutIcon className="size-5" />
-      </button>
+        <button
+          type="button"
+          className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleFitToView}
+          disabled={!hasRadius || isPlacingRadius}
+          title="Fit radius to view"
+        >
+          <ArrowsPointingOutIcon className="size-5" />
+        </button>
 
-      <button
-        type="button"
-        className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
-        onClick={handleClearRadius}
-        disabled={!hasRadius || isPlacingRadius}
-        aria-label="Clear radius"
-        title="Clear radius"
-      >
-        <NoSymbolIcon className="size-5" />
-      </button>
-    </aside>
+        <button
+          type="button"
+          className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={handleClearRadius}
+          disabled={!hasRadius || isPlacingRadius}
+          title="Clear radius"
+        >
+          <NoSymbolIcon className="size-5" />
+        </button>
+      </aside>
+    </div>
   );
 }
