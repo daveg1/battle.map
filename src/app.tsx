@@ -9,7 +9,7 @@ import { DEFAULT_MAP_VIEW } from "./types/viewer-state";
 import { useMapStore } from "./stores/use-map-store";
 import { useUserSettingsStore } from "./stores/use-user-settings-store";
 import { readMapViewFromUrl } from "./utils/viewer-url-state";
-import { MobileRadiusSelector } from "./components/mobile/mobile-radius-selector";
+import { MobileMenu } from "./components/mobile/mobile-menu";
 import { useIsMobile } from "./hooks/use-is-mobile";
 
 export function App() {
@@ -87,7 +87,7 @@ export function App() {
         )}
       </div>
 
-      {isMobile && <MobileRadiusSelector mapRef={mapRef} />}
+      {isMobile && <MobileMenu mapRef={mapRef} />}
 
       {isSplashVisible && <SplashScreen onDismiss={handleDismissSplash} />}
     </div>
