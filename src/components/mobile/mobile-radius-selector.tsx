@@ -7,8 +7,14 @@ import {
   NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { useDebounce } from "@uidotdev/usehooks";
-import { type ChangeEvent, useCallback, useEffect, useState } from "react";
-import type { RefObject } from "react";
+import {
+  type ChangeEvent,
+  type ReactNode,
+  type RefObject,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { useMapStore } from "../../stores/use-map-store";
 import { MAX_RADIUS_KM, MIN_RADIUS_KM } from "../../types/viewer-state";
@@ -17,6 +23,71 @@ const FIT_TO_VIEW_DEBOUNCE_MS = 200;
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
+}
+
+interface MobileMenuButtonProps {
+  title: string;
+  onClick(): void;
+  disabled?: boolean;
+  ariaLabel?: string;
+  isActive?: boolean;
+  split?: {
+    isOpen: boolean;
+    controlsId?: string;
+    content: ReactNode;
+  };
+  children?: ReactNode;
+}
+
+const MENU_BUTTON_BASE_CLASS =
+  "cursor-pointer rounded bg-stone-700 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50";
+
+function MobileMenuButton({
+  title,
+  onClick,
+  disabled = false,
+  ariaLabel,
+  isActive = false,
+  split,
+  children,
+}: MobileMenuButtonProps) {
+  if (split) {
+    return (
+      <button
+        type="button"
+        className={`flex items-stretch overflow-hidden text-left text-xs ${MENU_BUTTON_BASE_CLASS}`}
+        onClick={onClick}
+        disabled={disabled}
+        title={title}
+        aria-label={ariaLabel}
+        aria-expanded={split.isOpen}
+        aria-controls={split.controlsId}
+      >
+        <span className="px-3 py-2">{split.content}</span>
+        <span className="grid place-items-center border-l border-stone-700/70 px-2">
+          {split.isOpen ? (
+            <ChevronUpIcon className="size-4" />
+          ) : (
+            <ChevronDownIcon className="size-4" />
+          )}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={`grid w-12 place-items-center py-2 ${MENU_BUTTON_BASE_CLASS}`}
+      onClick={onClick}
+      disabled={disabled}
+      title={title}
+      aria-label={ariaLabel}
+      style={isActive ? { backgroundColor: "rgb(68 64 60 / 0.9)" } : undefined}
+    >
+      {children}
+    </button>
+  );
 }
 
 export function MobileRadiusSelector({ mapRef }: Props) {
@@ -110,69 +181,61 @@ export function MobileRadiusSelector({ mapRef }: Props) {
       )}
 
       <aside className="pointer-events-auto mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
-        <button
-          type="button"
-          className="grid w-10 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        <MobileMenuButton
           onClick={() => {
             const next = !isPlacingRadius;
             setIsPlacingRadius(next);
           }}
+          disabled={false}
+          ariaLabel={
+            isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
+          }
           title={
             isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
           }
-          style={
-            isPlacingRadius
-              ? { backgroundColor: "rgb(68 64 60 / 0.9)" }
-              : undefined
-          }
+          isActive={isPlacingRadius}
         >
           <CursorArrowRaysIcon className="size-5" />
-        </button>
+        </MobileMenuButton>
 
-        <button
-          type="button"
-          className="flex items-stretch overflow-hidden rounded text-left text-xs enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        <MobileMenuButton
           onClick={() => {
             setIsRadiusSliderOpen((current) => !current);
           }}
-          aria-expanded={isRadiusSliderOpen}
-          aria-controls="mobile-radius-slider"
           disabled={isPlacingRadius}
-        >
-          <span className="px-3 py-2">
-            <span className="block font-medium">Radius</span>
-            <span className="block tabular-nums">
-              {Math.round(radius.size)} km
-            </span>
-          </span>
-          <span className="grid place-items-center border-l border-stone-700/70 px-2">
-            {isRadiusSliderOpen ? (
-              <ChevronUpIcon className="size-4" />
-            ) : (
-              <ChevronDownIcon className="size-4" />
-            )}
-          </span>
-        </button>
+          ariaLabel="Toggle radius slider"
+          title="Toggle radius slider"
+          split={{
+            isOpen: isRadiusSliderOpen,
+            controlsId: "mobile-radius-slider",
+            content: (
+              <>
+                <span className="block font-medium">Radius</span>
+                <span className="block tabular-nums">
+                  {Math.round(radius.size)} km
+                </span>
+              </>
+            ),
+          }}
+        />
 
-        <button
-          type="button"
-          className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        <MobileMenuButton
           onClick={handleFitToView}
           disabled={!hasRadius || isPlacingRadius}
+          ariaLabel="Fit radius to view"
           title="Fit radius to view"
         >
           <ArrowsPointingOutIcon className="size-5" />
-        </button>
+        </MobileMenuButton>
 
-        <button
-          type="button"
-          className="grid w-12 cursor-pointer place-items-center rounded bg-stone-700 py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        <MobileMenuButton
           onClick={handleClearRadius}
           disabled={!hasRadius || isPlacingRadius}
+          ariaLabel="Clear radius"
           title="Clear radius"
         >
           <NoSymbolIcon className="size-5" />
-        </button>
+        </MobileMenuButton>
       </aside>
     </div>
   );
