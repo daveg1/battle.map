@@ -1,7 +1,4 @@
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/24/outline";
 import type { ReactNode } from "react";
 
 interface MobileMenuButtonProps {
@@ -13,7 +10,6 @@ interface MobileMenuButtonProps {
   split?: {
     isOpen: boolean;
     controlsId?: string;
-    content: ReactNode;
   };
   children?: ReactNode;
 }
@@ -42,7 +38,7 @@ export function MobileMenuButton({
         aria-expanded={split.isOpen}
         aria-controls={split.controlsId}
       >
-        <span className="px-3 py-2">{split.content}</span>
+        <span className="px-3 py-2">{children}</span>
         <span className="grid place-items-center border-l border-stone-700/70 px-2">
           {split.isOpen ? (
             <ChevronUpIcon className="size-4" />

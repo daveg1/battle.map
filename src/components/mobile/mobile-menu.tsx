@@ -135,16 +135,11 @@ export function MobileMenu({ mapRef }: Props) {
           split={{
             isOpen: isRadiusSliderOpen,
             controlsId: "mobile-radius-slider",
-            content: (
-              <>
-                <span className="block font-medium">Radius</span>
-                <span className="block tabular-nums">
-                  {Math.round(radius.size)} km
-                </span>
-              </>
-            ),
           }}
-        />
+        >
+          <span className="block font-medium">Radius</span>
+          <span className="block tabular-nums">{Math.round(radius.size)} km</span>
+        </MobileMenuButton>
 
         <MobileMenuButton
           onClick={handleFitToView}
