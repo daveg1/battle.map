@@ -2,6 +2,7 @@ import type {
   SessionMapView,
   SessionRadiusState,
 } from "../types/viewer-state";
+import { MAX_RADIUS_KM, MIN_RADIUS_KM } from "../types/viewer-state";
 
 const MAP_LONGITUDE_PARAM = "lng";
 const MAP_LATITUDE_PARAM = "lat";
@@ -36,15 +37,14 @@ export function readRadiusFromUrl(): SessionRadiusState | null {
   if (
     !isFiniteNumber(lng) ||
     !isFiniteNumber(lat) ||
-    !isFiniteNumber(size) ||
-    size <= 0
+    !isFiniteNumber(size)
   ) {
     return null;
   }
 
   return {
     point: { lng, lat },
-    size,
+    size: Math.min(MAX_RADIUS_KM, Math.max(MIN_RADIUS_KM, size)),
   };
 }
 

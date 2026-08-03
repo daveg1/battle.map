@@ -9,9 +9,8 @@ import { type ChangeEvent, useCallback, useEffect } from "react";
 import type { RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { useMapStore } from "../../stores/use-map-store";
+import { MAX_RADIUS_KM, MIN_RADIUS_KM } from "../../types/viewer-state";
 
-const MIN_RADIUS_KM = 1;
-const MAX_RADIUS_KM = 1000;
 const FIT_TO_VIEW_DEBOUNCE_MS = 200;
 
 interface Props {

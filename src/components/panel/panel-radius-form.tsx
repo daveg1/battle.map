@@ -1,5 +1,6 @@
 import type { ChangeEvent } from "react";
 import { useMapStore } from "../../stores/use-map-store";
+import { MAX_RADIUS_KM, MIN_RADIUS_KM } from "../../types/viewer-state";
 
 export function ControlPanelRadiusForm() {
   const radius = useMapStore((state) => state.radius);
@@ -8,8 +9,8 @@ export function ControlPanelRadiusForm() {
   const hasRadius = Boolean(radius.point);
 
   function handleRadiusUpdate(event: ChangeEvent<HTMLInputElement>) {
-    // TODO: clamp to 0,1000
-    const size = Number(event.target.valueAsNumber);
+    const nextSize = Number(event.target.valueAsNumber);
+    const size = Math.min(MAX_RADIUS_KM, Math.max(MIN_RADIUS_KM, nextSize));
 
     setRadius((current) => ({
       ...current,
@@ -34,8 +35,8 @@ export function ControlPanelRadiusForm() {
           <input
             type="range"
             className="w-full"
-            min={1}
-            max={1000}
+            min={MIN_RADIUS_KM}
+            max={MAX_RADIUS_KM}
             value={radius.size}
             onChange={handleRadiusUpdate}
           />
@@ -44,8 +45,8 @@ export function ControlPanelRadiusForm() {
             type="number"
             className="w-[4ch] rounded text-right leading-5 lg:w-[6ch]"
             value={radius.size}
-            min={1}
-            max={1000}
+            min={MIN_RADIUS_KM}
+            max={MAX_RADIUS_KM}
             onChange={handleRadiusUpdate}
           />
         </div>

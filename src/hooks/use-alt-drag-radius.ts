@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
-import type { SessionRadiusState } from "../types/viewer-state";
+import {
+  MAX_RADIUS_KM,
+  MIN_RADIUS_KM,
+  type SessionRadiusState,
+} from "../types/viewer-state";
 
-const RADIUS_MIN_KM = 1;
-const RADIUS_MAX_KM = 1000;
 const ALT_DRAG_PIXELS_PER_STEP = 8;
 const ALT_DRAG_BASE_RADIUS_STEP_KM = 10;
 const ALT_DRAG_MIN_RADIUS_STEP_KM = 2;
@@ -44,9 +46,9 @@ export function useAltDragRadius({
       const stepDelta = Math.round(deltaX / ALT_DRAG_PIXELS_PER_STEP);
       const radiusStepKm = getRadiusStepForZoom(dragState.getZoom?.());
       const nextRadius = Math.min(
-        RADIUS_MAX_KM,
+        MAX_RADIUS_KM,
         Math.max(
-          RADIUS_MIN_KM,
+          MIN_RADIUS_KM,
           dragState.startRadius + stepDelta * radiusStepKm,
         ),
       );

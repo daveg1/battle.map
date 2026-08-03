@@ -23,3 +23,6 @@ export const DEFAULT_RADIUS_STATE: SessionRadiusState = {
   point: null,
   size: 100,
 };
+
+export const MIN_RADIUS_KM = 1;
+export const MAX_RADIUS_KM = 500;
