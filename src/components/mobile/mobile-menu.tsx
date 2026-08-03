@@ -109,52 +109,48 @@ export function MobileMenu({ mapRef }: Props) {
 
       <aside className="pointer-events-auto mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
         <MobileMenuButton
-          onClick={() => {
-            const next = !isPlacingRadius;
-            setIsPlacingRadius(next);
-          }}
-          disabled={false}
-          ariaLabel={
-            isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
-          }
           title={
             isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
           }
           isActive={isPlacingRadius}
+          disabled={false}
+          onClick={() => {
+            const next = !isPlacingRadius;
+            setIsPlacingRadius(next);
+          }}
         >
           <CursorArrowRaysIcon className="size-5" />
         </MobileMenuButton>
 
         <MobileMenuButton
+          isSplit
+          isSplitOpen={isRadiusSliderOpen}
+          title="Toggle radius slider"
+          disabled={isPlacingRadius}
           onClick={() => {
             setIsRadiusSliderOpen((current) => !current);
           }}
-          disabled={isPlacingRadius}
-          ariaLabel="Toggle radius slider"
-          title="Toggle radius slider"
-          split={{
-            isOpen: isRadiusSliderOpen,
-            controlsId: "mobile-radius-slider",
-          }}
         >
-          <span className="block font-medium">Radius</span>
-          <span className="block tabular-nums">{Math.round(radius.size)} km</span>
+          <div className="px-3 py-2">
+            <span className="block font-medium">Radius</span>
+            <span className="block tabular-nums">
+              {Math.round(radius.size)} km
+            </span>
+          </div>
         </MobileMenuButton>
 
         <MobileMenuButton
-          onClick={handleFitToView}
-          disabled={!hasRadius || isPlacingRadius}
-          ariaLabel="Fit radius to view"
           title="Fit radius to view"
+          disabled={!hasRadius || isPlacingRadius}
+          onClick={handleFitToView}
         >
           <ArrowsPointingOutIcon className="size-5" />
         </MobileMenuButton>
 
         <MobileMenuButton
-          onClick={handleClearRadius}
-          disabled={!hasRadius || isPlacingRadius}
-          ariaLabel="Clear radius"
           title="Clear radius"
+          disabled={!hasRadius || isPlacingRadius}
+          onClick={handleClearRadius}
         >
           <NoSymbolIcon className="size-5" />
         </MobileMenuButton>
