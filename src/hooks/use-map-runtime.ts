@@ -11,6 +11,7 @@ import type { BattleMarkerItem } from "../types/common";
 import type { SessionRadiusState } from "../types/viewer-state";
 import { useMapStore } from "../stores/use-map-store";
 import { useUserSettingsStore } from "../stores/use-user-settings-store";
+import { openPinOnMap } from "../utils/open-pin-on-map";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -92,13 +93,7 @@ export function useMapRuntime({
       if (selected) {
         setSelectedMarker(selected);
 
-        const map = mapRef.current;
-        if (map) {
-          map.easeTo({
-            center: [selected.coords.lng, selected.coords.lat],
-            duration: 600,
-          });
-        }
+        openPinOnMap(mapRef, selected.coords);
       }
       return;
     }

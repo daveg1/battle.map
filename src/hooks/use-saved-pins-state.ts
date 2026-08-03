@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { BattleMarkerItem, SavedPinItem } from "../types/common";
 import { useMapStore } from "../stores/use-map-store";
+import { openPinOnMap } from "../utils/open-pin-on-map";
 
 interface Props {
   mapRef: RefObject<MapRef | null>;
@@ -103,15 +104,7 @@ export function useSavedPinsState({ mapRef }: Props) {
       battles: pin.battles,
     });
 
-    const map = mapRef.current;
-    if (!map) return;
-
-    const currentZoom = map.getZoom();
-    map.easeTo({
-      center: [pin.coords.lng, pin.coords.lat],
-      zoom: Math.max(currentZoom, 5),
-      duration: 600,
-    });
+    openPinOnMap(mapRef, pin.coords, { minZoom: 5 });
   }
 
   return {
