@@ -1,7 +1,7 @@
 import * as turf from "@turf/turf";
 import {
   ArrowsPointingOutIcon,
-  MapPinIcon,
+  CursorArrowRaysIcon,
   NoSymbolIcon,
 } from "@heroicons/react/24/outline";
 import { useDebounce } from "@uidotdev/usehooks";
@@ -91,19 +91,32 @@ export function MobileRadiusSelector({ mapRef }: Props) {
     <aside className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 mx-auto flex w-fit gap-2 rounded-lg border border-stone-600 bg-stone-900/90 p-2 text-white shadow-lg backdrop-blur-sm">
       <button
         type="button"
-        className="grid w-12 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
+        className="grid w-10 cursor-pointer place-items-center rounded py-2 text-sm enabled:hover:bg-stone-700/60 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={() => {
           const next = !isPlacingRadius;
           setIsPlacingRadius(next);
         }}
-        aria-label={isPlacingRadius ? "Cancel placing radius" : "Place radius on map"}
-        title={isPlacingRadius ? "Cancel placing radius" : "Place radius on map"}
-        style={isPlacingRadius ? { backgroundColor: "rgb(68 64 60 / 0.9)" } : undefined}
+        aria-label={
+          isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
+        }
+        title={
+          isPlacingRadius ? "Cancel placing radius" : "Place radius on map"
+        }
+        style={
+          isPlacingRadius
+            ? { backgroundColor: "rgb(68 64 60 / 0.9)" }
+            : undefined
+        }
       >
-        <MapPinIcon className="size-5" />
+        <CursorArrowRaysIcon className="size-5" />
       </button>
 
-      <section className="flex items-center gap-4 transition-opacity" style={isPlacingRadius ? { opacity: 0.4, pointerEvents: "none" } : undefined}>
+      <section
+        className="flex items-center gap-4 transition-opacity"
+        style={
+          isPlacingRadius ? { opacity: 0.4, pointerEvents: "none" } : undefined
+        }
+      >
         <div className="flex shrink-0 flex-col">
           <span className="text-xs font-medium">Radius</span>
           <span className="text-xs tabular-nums">
@@ -113,7 +126,7 @@ export function MobileRadiusSelector({ mapRef }: Props) {
 
         <input
           type="range"
-          className="w-50"
+          className="w-full basis-50"
           min={MIN_RADIUS_KM}
           max={MAX_RADIUS_KM}
           value={radius.size}
